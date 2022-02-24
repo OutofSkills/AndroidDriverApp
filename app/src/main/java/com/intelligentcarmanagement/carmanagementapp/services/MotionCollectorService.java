@@ -44,7 +44,8 @@ public class MotionCollectorService {
                     " acc Z: " + motionList.get(i).getAccelerometerZ() +
                     " gyro X: " + motionList.get(i).getGyroX() +
                     " gyro Y: " + motionList.get(i).getGyroY() +
-                    " gyro Z: " + motionList.get(i).getGyroZ()
+                    " gyro Z: " + motionList.get(i).getGyroZ() +
+                    " timestamp: " + motionList.get(i).getTimestamp()
             );
     }
 }

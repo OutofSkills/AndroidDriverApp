@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    android:id="@+id/place_item_parent_layout">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/placeIndicator"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@drawable/ic_baseline_location_on_24" />
+
+    <TextView
+        android:id="@+id/placeCityName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Craiova, Romania"
+        android:layout_toRightOf="@id/placeIndicator"
+        android:textColor="@color/black"
+        android:textSize="16dp"/>
+
+    <TextView
+        android:id="@+id/placeRegionName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/placeCityName"
+        android:layout_toRightOf="@id/placeIndicator"
+        android:text="Craiova, Romania"
+        android:textColor="@color/light_grey"
+        android:textSize="14dp"/>
+
+    <TextView
+        android:id="@+id/placeDistance"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="20dp"
+        android:text="10 km"
+        android:textColor="@color/light_grey"
+        android:layout_centerVertical="true"
+        android:textSize="14dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_below="@+id/placeRegionName"
+        android:layout_alignParentEnd="true"
+        android:layout_toRightOf="@+id/placeIndicator"
+        android:background="@color/black"/>
+
+</RelativeLayout>

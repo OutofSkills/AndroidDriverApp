@@ -8,17 +8,14 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
-import android.os.Bundle;
-import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.Switch;
 
 import com.google.android.material.navigation.NavigationView;
+import com.intelligentcarmanagement.carmanagementapp.activities.user.HomeActivity;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.activities.driver.HistoryActivity;
-import com.intelligentcarmanagement.carmanagementapp.activities.driver.HomeActivity;
 
 public class DrawerBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 

@@ -2,9 +2,11 @@ package com.intelligentcarmanagement.carmanagementapp.adapters;
 
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,13 +20,17 @@ import java.util.ArrayList;
 import java.util.zip.Inflater;
 
 public class PlacesRecyclerViewAdapter extends RecyclerView.Adapter<PlacesRecyclerViewAdapter.ViewHolder> {
-
+    Context mContext;
     ArrayList<String> mCityNames = new ArrayList<>();
     ArrayList<String> mRegionNames = new ArrayList<>();
     ArrayList<String> mDistances = new ArrayList<>();
-    Context mContext;
 
-    public PlacesRecyclerViewAdapter(Context mContext, ArrayList<String> mCityNames, ArrayList<String> mRegionNames, ArrayList<String> mDistances) {
+    // Pickup and destination text boxes
+    EditText pickUpEditText, destinationEditText;
+
+    public PlacesRecyclerViewAdapter(Context mContext, ArrayList<String> mCityNames, ArrayList<String> mRegionNames, ArrayList<String> mDistances, EditText pickUp, EditText destination) {
+        this.pickUpEditText = pickUp;
+        this.destinationEditText = destination;
         this.mCityNames = mCityNames;
         this.mRegionNames = mRegionNames;
         this.mDistances = mDistances;
@@ -48,7 +54,30 @@ public class PlacesRecyclerViewAdapter extends RecyclerView.Adapter<PlacesRecycl
         holder.parentLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(mContext, mCityNames.get(holder.getAbsoluteAdapterPosition()), Toast.LENGTH_SHORT).show();
+                if(pickUpEditText.isFocused())
+                {
+                    pickUpEditText.setText(mCityNames.get(holder.getAbsoluteAdapterPosition()));
+                    // Verify if the destination is not filled yet
+                    if(destinationEditText.getText().toString().matches(""))
+                    {
+                        destinationEditText.requestFocus();
+                    }
+                    else {
+                        pickUpEditText.clearFocus();
+                    }
+                }
+                else if(destinationEditText.isFocused())
+                {
+                    destinationEditText.setText(mCityNames.get(holder.getAbsoluteAdapterPosition()));
+                    // Verify if the pick-up location is not filled yet
+                    if(pickUpEditText.getText().toString().matches(""))
+                    {
+                        pickUpEditText.requestFocus();
+                    }
+                    else {
+                        destinationEditText.clearFocus();
+                    }
+                }
             }
         });
     }

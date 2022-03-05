@@ -1,5 +1,6 @@
 package com.intelligentcarmanagement.carmanagementapp.activities.user;
 
+import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.text.Editable;
@@ -10,6 +11,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -21,11 +24,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MapStyleOptions;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.Task;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -34,8 +40,13 @@ import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.activities.DrawerBaseActivity;
 import com.intelligentcarmanagement.carmanagementapp.adapters.PlacesRecyclerViewAdapter;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityHomeBinding;
+import com.intelligentcarmanagement.carmanagementapp.services.GPSTrackerService;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import kotlin.jvm.Synchronized;
 
 public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallback {
 
@@ -46,10 +57,18 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
     BottomSheetBehavior bottomSheetBehavior;
     EditText pickUpEditText, destinationEditText;
 
+    // GPS sensor used to retrieve current location
+    GPSTrackerService gpsTracker;
+
     String apiKey;
     private GoogleMap mMap;
     PlacesClient placesClient;
     StringBuilder mResult;
+    LatLng currentLocation;
+
+    // Autocomplete recycler view
+    RecyclerView recyclerView;
+    PlacesRecyclerViewAdapter adapter;
 
     // Autocomplete predictions data
     ArrayList<String> mCityNames = new ArrayList<>();
@@ -64,6 +83,8 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
         setContentView(binding.getRoot());
         allocateActivityTitle("Home");
 
+        currentLocation = getCurrentLocation();
+
         // setup for the bottom sheet
         sheet = findViewById(R.id.bottomSheet);
         bottomSheetBehavior = BottomSheetBehavior.from(sheet);
@@ -71,12 +92,28 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
         pickUpEditText = findViewById(R.id.pickUpTextView);
         destinationEditText = findViewById(R.id.dropTextView);
 
+        recyclerView = findViewById(R.id.placesRecyclerView);
+
         pickUpEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
                     if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
                         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                }
+                else
+                {
+                    if(!pickUpEditText.isFocused())
+                        if(!pickUpEditText.getText().toString().matches("") && !destinationEditText.getText().toString().matches(""))
+                        {
+                            // Both text boxes are filled
+                            // so we can do ride request
+                            // and close the bottom sheet
+                            if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                                // TODO make the request here
+                            }
+                        }
                 }
             }
         });
@@ -96,9 +133,21 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
                     if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED)
                     {
                         bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-                        initTestAutocompleteData();
                     }
+                }
+                else
+                {
+                    if(!pickUpEditText.isFocused())
+                        if(!pickUpEditText.getText().toString().matches("") && !destinationEditText.getText().toString().matches(""))
+                        {
+                            // Both text boxes are filled
+                            // so we can do ride request
+                            // and close the bottom sheet
+                            if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                                // TODO make the request here
+                            }
+                        }
                 }
             }
         });
@@ -151,7 +200,7 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                Log.d(TAG, s.toString());
+                predictPlaces(s.toString());
             }
         });
 
@@ -162,54 +211,37 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
         mapFragment.getMapAsync(this);
     }
 
-    private void initTestAutocompleteData()
-    {
-        mCityNames.add("Chisinau");
-        mRegionNames.add("Chisinau");
-        mDistances.add("10 km");
-
-        mCityNames.add("Calarasi");
-        mRegionNames.add("Calarasi");
-        mDistances.add("12 km");
-
-        mCityNames.add("Calarasi");
-        mRegionNames.add("Calarasi");
-        mDistances.add("12 km");
-
-        mCityNames.add("Calarasi");
-        mRegionNames.add("Calarasi");
-        mDistances.add("12 km");
-
-        mCityNames.add("Calarasi");
-        mRegionNames.add("Calarasi");
-        mDistances.add("12 km");
-
-        mCityNames.add("Calarasi");
-        mRegionNames.add("Calarasi");
-        mDistances.add("12 km");
-
-        mCityNames.add("Calarasi");
-        mRegionNames.add("Calarasi");
-        mDistances.add("12 km");
-
-        mCityNames.add("Calarasi");
-        mRegionNames.add("Calarasi");
-        mDistances.add("12 km");
-
-        mCityNames.add("Calarasi");
-        mRegionNames.add("Calarasi");
-        mDistances.add("12 km");
-
-        initRecyclerView();
-    }
-
     private void initRecyclerView()
     {
-        RecyclerView recyclerView = findViewById(R.id.placesRecyclerView);
-        PlacesRecyclerViewAdapter adapter = new PlacesRecyclerViewAdapter(this, mCityNames, mRegionNames, mDistances);
+        adapter = new PlacesRecyclerViewAdapter(this, mCityNames, mRegionNames, mDistances, pickUpEditText, destinationEditText);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
     }
+
+    private LatLng getCurrentLocation()
+    {
+        // Request gps permissions
+        try {
+            if (ContextCompat.checkSelfPermission(getApplicationContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ) {
+                ActivityCompat.requestPermissions(this, new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, 101);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        // Get the current latitude and longitude
+        gpsTracker = new GPSTrackerService(this);
+        LatLng latLng = null;
+        if(gpsTracker.canGetLocation()) {
+            latLng = new LatLng(gpsTracker.getLatitude(), gpsTracker.getLongitude());
+            gpsTracker.stopUsingGPS();
+        }else{
+            gpsTracker.showSettingsAlert();
+        }
+
+        return latLng;
+    }
+
 
     /**
      * Manipulates the map once available.
@@ -240,18 +272,78 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
+    // Fetch a place details specified in the placeFields
+    @Synchronized
+    private void fetchPlacesDetails(List<AutocompletePrediction> predictions)
+    {
+        // Specify the fields to return.
+        List<Place.Field> placeFields = Arrays.asList(Place.Field.LAT_LNG);
+
+        for (AutocompletePrediction p: predictions)
+        {
+            // Construct a request object, passing the place ID and fields array.
+            FetchPlaceRequest request = FetchPlaceRequest.newInstance(p.getPlaceId(), placeFields);
+
+            // Fetch places details
+            placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+                Place place = response.getPlace();
+                Log.i(TAG, "Place found: " + place.getName() + " " + place.getLatLng());
+                // Save the details
+                Log.i(TAG, "Place distance: " + calculateDistance(currentLocation, place.getLatLng()));
+                mDistances.add(String.format("%.2f", calculateDistance(currentLocation, place.getLatLng())) + " Km");
+                mCityNames.add(p.getPrimaryText(null).toString());
+                mRegionNames.add(p.getSecondaryText(null).toString());
+
+                if(mCityNames.size() == predictions.size()) {
+                    // Pass the data to the recycler view
+                    initRecyclerView();
+                }
+            }).addOnFailureListener((exception) -> {
+                if (exception instanceof ApiException) {
+                    ApiException apiException = (ApiException) exception;
+                    int statusCode = apiException.getStatusCode();
+                    // Handle error with given status code.
+                    Log.e(TAG, "Place could not be fetched: " + exception.getMessage());
+                }
+            });
+
+        }
+
+    }
+
+    // Calculate the distance between 2 points
+    private double calculateDistance(LatLng point1, LatLng point2){
+        double p = 0.017453292519943295;
+        double a = 0.5 - Math.cos((point2.latitude - point1.latitude) * p)/2 +
+                Math.cos(point1.latitude * p) * Math.cos(point2.latitude * p) *
+                        (1 - Math.cos((point2.longitude - point1.longitude) * p))/2;
+        return 12742 * Math.asin(Math.sqrt(a));
+    }
+
+    // Autocomplete the recycler view by using Places API
     private void predictPlaces(String searchString)
     {
+        // Reset the places containers
+        mCityNames = new ArrayList<>();
+        mRegionNames = new ArrayList<>();
+        mDistances = new ArrayList<>();
+
         // Create a new token for the autocomplete session. Pass this to FindAutocompletePredictionsRequest,
         // and once again when the user makes a selection (for example when calling fetchPlace()).
         AutocompleteSessionToken token = AutocompleteSessionToken.newInstance();
 
+        // Set the current location if it was not yet
+        if(currentLocation == null) {
+            currentLocation = getCurrentLocation();
+        }
+        Log.d(TAG, "Current Location: "+ currentLocation.toString());
         // in meter
-        double radius = 30.0;
+        double radius = 300.0;
         // optional: to get distance to circle radius, not the edge
         double distance = radius * Math.sqrt(2.0);
 
-        LatLng center = new LatLng(47.376232, 28.380365);
+        //LatLng center = new LatLng(47.376232, 28.380365);
+        LatLng center = currentLocation;
 
         LatLng ne = SphericalUtil.computeOffset(center, distance, 45.0);
         LatLng sw = SphericalUtil.computeOffset(center, distance, 225.0);
@@ -261,6 +353,8 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
 
         // Use the builder to create a FindAutocompletePredictionsRequest.
         FindAutocompletePredictionsRequest request = FindAutocompletePredictionsRequest.builder()
+                // Set the current location to get the distance
+                .setOrigin(currentLocation)
                 // Call either setLocationBias() OR setLocationRestriction().
                 .setLocationBias(bounds)
                 //.setLocationRestriction(bounds)
@@ -271,14 +365,16 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
                 .build();
 
         placesClient.findAutocompletePredictions(request).addOnSuccessListener(response -> {
-            mResult = new StringBuilder();
-            for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
-                mResult.append(" ").append(prediction.getFullText(null) + "\n");
-                Log.i(TAG, prediction.getPlaceId());
-                Log.i(TAG, prediction.getPrimaryText(null).toString());
-                Toast.makeText(HomeActivity.this, prediction.getPrimaryText(null) + "-" + prediction.getSecondaryText(null), Toast.LENGTH_SHORT).show();
-            }
-            //mSearchResult.setText(String.valueOf(mResult));
+           // for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
+                // Fill the recycler view containers with results
+                //mCityNames.add(prediction.getPrimaryText(null).toString());
+                //mRegionNames.add(prediction.getSecondaryText(null).toString());
+                // String.valueOf((prediction.getDistanceMeters()/1000.0f))
+                //mDistances.add("10 km");
+                fetchPlacesDetails(response.getAutocompletePredictions());
+                //Log.d(TAG, String.valueOf(prediction.getDistanceMeters()));
+            //}
+            ////
         }).addOnFailureListener((exception) -> {
             if (exception instanceof ApiException) {
                 ApiException apiException = (ApiException) exception;

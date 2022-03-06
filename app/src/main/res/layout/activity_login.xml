@@ -27,7 +27,8 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/loginTopBg">
+        android:layout_below="@id/loginTopBg"
+        android:layout_above="@id/bottomRedirectLayout">
 
         <LinearLayout
             android:id="@+id/loginLayout"
@@ -40,7 +41,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
+                android:layout_marginBottom="15dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -63,7 +64,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
+                android:layout_marginBottom="15dp"
                 android:orientation="vertical">
 
                 <TextView
@@ -100,6 +101,13 @@
             </LinearLayout>
 
         </LinearLayout>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/bottomRedirectLayout"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -108,15 +116,29 @@
             android:gravity="center_horizontal">
 
             <Button
+                android:id="@+id/loginRedirectForgotPsw"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginEnd="2dp"
+                android:text="Forgot Password?"
+                android:textAllCaps="false"
+                android:textSize="14dp"
+                android:textColor="@color/colorAccent"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                />
+
+            <Button
+                android:id="@+id/loginRedirectRegister"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="2dp"
                 android:text="Register"
+                android:textAllCaps="false"
                 android:textSize="14dp"
                 android:textColor="@color/colorHeadings"
                 style="@style/Widget.MaterialComponents.Button.TextButton"
                 />
 
         </LinearLayout>
-
     </RelativeLayout>
 </RelativeLayout>

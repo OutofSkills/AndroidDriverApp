@@ -8,10 +8,11 @@ import android.view.View;
 import android.widget.Button;
 
 import com.intelligentcarmanagement.carmanagementapp.R;
-import com.intelligentcarmanagement.carmanagementapp.RegisterActivity;
+import com.intelligentcarmanagement.carmanagementapp.activities.user.HomeActivity;
 
 public class LoginActivity extends AppCompatActivity {
     Button loginRedirectRegister;
+    Button loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -19,11 +20,19 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
 
         loginRedirectRegister = findViewById(R.id.loginRedirectRegister);
+        loginButton = findViewById(R.id.loginButton);
 
         loginRedirectRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+            }
+        });
+
+        loginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(LoginActivity.this, HomeActivity.class));
             }
         });
     }

@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginBottom="10dp"
+    android:layout_marginTop="5dp"
+    android:id="@+id/historyItemParentLayout">
+
+    <RelativeLayout
+        android:id="@+id/historyElementLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/historyRideIdLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/historyRideId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="#21"
+                android:textSize="16dp"
+                android:textColor="@color/black"
+                />
+
+            <TextView
+                android:id="@+id/historyRideDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2022-02-22"
+                android:textSize="12dp"
+                android:textColor="@color/dark_grey"
+                />
+
+            <View
+                android:layout_width="100dp"
+                android:layout_height="1dp"
+                android:layout_marginTop="5dp"
+                android:layout_below="@+id/historyRideDate"
+                android:layout_alignParentEnd="true"
+                android:background="@color/dark_grey"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/historyRideDetailsLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:layout_below="@+id/historyRideIdLayout"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/pickUpIndicator"
+                        android:layout_width="9dp"
+                        android:layout_height="9dp"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginStart="16dp"
+                        android:background="@drawable/bg_circle_black" />
+
+                    <TextView
+                        android:id="@+id/historyRidePickUp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="Chisinau"
+                        android:textSize="18dp"/>
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal">
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:id="@+id/destinationIndicator"
+                        android:layout_width="9dp"
+                        android:layout_height="9dp"
+                        android:background="@android:color/black"
+                        android:layout_marginTop="8dp"
+                        android:layout_marginStart="16dp" />
+
+                    <TextView
+                        android:id="@+id/historyRideDestination"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:text="Calarsi"
+                        android:textSize="18dp"/>
+
+                </LinearLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:layout_toRightOf="@id/historyRideDetailsLayout"
+                android:layout_below="@id/historyRideIdLayout"
+                android:layout_alignParentEnd="true">
+
+                <TextView
+                    android:id="@+id/historyRideDistance"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="25 km"
+                    android:textAlignment="textEnd"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_below="@+id/historyRideDetailsLayout"
+            android:layout_alignParentEnd="true"
+            android:background="@color/black"/>
+    </RelativeLayout>
+</RelativeLayout>

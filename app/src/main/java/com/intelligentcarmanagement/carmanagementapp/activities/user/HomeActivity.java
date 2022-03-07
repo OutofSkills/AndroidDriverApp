@@ -161,7 +161,7 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
         });
 
         // Autocomplete setup
-        apiKey = getString(R.string.google_maps_key);
+        apiKey = getResources().getString(R.string.google_maps_key);
 
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), apiKey);

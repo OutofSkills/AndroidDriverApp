@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp;
+package com.intelligentcarmanagement.carmanagementapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -7,7 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.intelligentcarmanagement.carmanagementapp.activities.LoginActivity;
+import com.intelligentcarmanagement.carmanagementapp.R;
 
 public class RegisterActivity extends AppCompatActivity {
 

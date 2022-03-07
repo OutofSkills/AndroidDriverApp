@@ -8,6 +8,7 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -52,7 +53,14 @@ public class DrawerBaseActivity extends AppCompatActivity implements NavigationV
                 startActivity(new Intent(this, HomeActivity.class));
                 overridePendingTransition(0, 0);
                 break;
-
+            case R.id.nav_profile:
+                startActivity(new Intent(this, ProfileActivity.class));
+                overridePendingTransition(0, 0);
+                break;
+            case R.id.nav_sign_out:
+                startActivity(new Intent(this, LoginActivity.class));
+                overridePendingTransition(0, 0);
+                break;
         }
         return false;
     }

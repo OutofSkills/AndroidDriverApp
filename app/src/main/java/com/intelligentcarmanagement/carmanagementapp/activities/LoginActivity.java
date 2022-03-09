@@ -7,8 +7,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
+import com.intelligentcarmanagement.carmanagementapp.activities.driver.DashboardActivity;
 import com.intelligentcarmanagement.carmanagementapp.R;
-import com.intelligentcarmanagement.carmanagementapp.activities.user.HomeActivity;
 
 public class LoginActivity extends AppCompatActivity {
     Button loginRedirectRegister;
@@ -32,7 +32,7 @@ public class LoginActivity extends AppCompatActivity {
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(LoginActivity.this, HomeActivity.class));
+                startActivity(new Intent(LoginActivity.this, DashboardActivity.class));
             }
         });
     }

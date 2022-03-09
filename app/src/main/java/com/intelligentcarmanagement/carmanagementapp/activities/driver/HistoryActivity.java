@@ -22,7 +22,7 @@ import java.util.GregorianCalendar;
 public class HistoryActivity extends DrawerBaseActivity {
     ActivityHistoryBinding activityHistoryBinding;
 
-    // Autocomplete recycler view
+    // History recycler view
     RecyclerView recyclerView;
     HistoryRecyclerViewAdapter adapter;
 

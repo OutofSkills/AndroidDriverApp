@@ -1,12 +1,16 @@
 package com.intelligentcarmanagement.carmanagementapp.activities.user;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.Toast;
@@ -63,12 +67,14 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
     String apiKey;
     private GoogleMap mMap;
     PlacesClient placesClient;
-    StringBuilder mResult;
     LatLng currentLocation;
 
     // Autocomplete recycler view
     RecyclerView recyclerView;
     PlacesRecyclerViewAdapter adapter;
+
+    // Ride submit request button
+    Button submitRideRequest;
 
     // Autocomplete predictions data
     ArrayList<String> mCityNames = new ArrayList<>();
@@ -91,6 +97,7 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
 
         pickUpEditText = findViewById(R.id.pickUpTextView);
         destinationEditText = findViewById(R.id.dropTextView);
+        submitRideRequest = findViewById(R.id.submitRideRequest);
 
         recyclerView = findViewById(R.id.placesRecyclerView);
 
@@ -112,6 +119,18 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
                             if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                                 // TODO make the request here
+                                if(!submitRideRequest.isEnabled()){
+                                    submitRideRequest.setEnabled(true);
+                                    submitRideRequest.setBackgroundColor(Color.GREEN);
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            if(submitRideRequest.isEnabled()){
+                                submitRideRequest.setEnabled(false);
+                                submitRideRequest.setBackgroundColor(Color.DKGRAY);
                             }
                         }
                 }
@@ -146,6 +165,16 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
                             if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                                 bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                                 // TODO make the request here
+                                if(!submitRideRequest.isEnabled()){
+                                    submitRideRequest.setEnabled(true);
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            if(submitRideRequest.isEnabled()){
+                                submitRideRequest.setEnabled(false);
                             }
                         }
                 }
@@ -201,6 +230,13 @@ public class HomeActivity extends DrawerBaseActivity implements OnMapReadyCallba
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 predictPlaces(s.toString());
+            }
+        });
+
+        submitRideRequest.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(HomeActivity.this, AvailableDriversActivity.class));
             }
         });
 

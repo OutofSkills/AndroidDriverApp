@@ -64,6 +64,9 @@ public class DashboardActivity extends DrawerBaseActivity {
         notifications.add(new Notification("Ride request", "John is requesting a ...",
                 new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime(), btm));
 
+        notifications.add(new Notification("Ride request", "John is requesting a ...",
+                new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime(), btm));
+
         initRecyclerView();
     }
 }

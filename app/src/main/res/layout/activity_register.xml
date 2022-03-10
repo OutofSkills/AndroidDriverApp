@@ -33,9 +33,33 @@
             android:id="@+id/registerLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:layout_margin="25dp"
+            android:layout_margin="20dp"
             android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="20dp"
+                android:gravity="center">
+
+                <androidx.cardview.widget.CardView xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/myCardView"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    app:cardCornerRadius="50dp"
+                    android:background="@drawable/circle">
+
+                    <com.google.android.material.imageview.ShapeableImageView
+                        android:id="@+id/notification_item_image"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/no_image"
+                        android:scaleType="centerCrop"
+                        />
+                </androidx.cardview.widget.CardView>
+
+
+            </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -43,30 +67,38 @@
                 android:layout_marginBottom="5dp"
                 android:orientation="vertical">
 
-
-                <EditText
-                    android:id="@+id/registerFirstName"
+                <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:fontFamily="sans-serif-light"
-                    android:textColor="#000000"
-                    android:drawableLeft="@drawable/ic_baseline_person_24"
-                    android:drawableTint="@color/colorHeadings"
-                    android:textSize="20dp"
-                    android:hint="First Name"/>
+                    android:orientation="horizontal"
+                    android:weightSum="10">
 
-                <EditText
-                    android:id="@+id/registerLastName"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="5dp"
-                    android:fontFamily="sans-serif-light"
-                    android:textColor="#000000"
-                    android:drawableLeft="@drawable/ic_baseline_person_24"
-                    android:drawableTint="@color/colorHeadings"
-                    android:textSize="20dp"
-                    android:hint="Last Name"/>
+                    <EditText
+                        android:id="@+id/registerFirstName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="5dp"
+                        android:layout_weight="5"
+                        android:fontFamily="sans-serif-light"
+                        android:textColor="#000000"
+                        android:drawableLeft="@drawable/ic_baseline_person_outline_24"
+                        android:drawableTint="@color/colorHeadings"
+                        android:textSize="20dp"
+                        android:hint="First Name"/>
+
+                    <EditText
+                        android:id="@+id/registerLastName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="5"
+                        android:layout_marginBottom="5dp"
+                        android:fontFamily="sans-serif-light"
+                        android:textColor="#000000"
+                        android:drawableLeft="@drawable/ic_baseline_person_24"
+                        android:drawableTint="@color/colorHeadings"
+                        android:textSize="20dp"
+                        android:hint="Last Name"/>
+                </LinearLayout>
 
                 <EditText
                     android:id="@+id/registerEmail"
@@ -113,7 +145,7 @@
                     android:inputType="textPassword"
                     android:fontFamily="sans-serif-light"
                     android:textColor="#000000"
-                    android:drawableLeft="@drawable/ic_baseline_lock_24"
+                    android:drawableLeft="@drawable/ic_outline_lock_24"
                     android:drawableTint="@color/colorHeadings"
                     android:textSize="20dp"
                     android:hint="Confirm Password"/>

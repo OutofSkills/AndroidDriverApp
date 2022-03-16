@@ -8,15 +8,12 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 
 import com.google.android.material.navigation.NavigationView;
-import com.intelligentcarmanagement.carmanagementapp.activities.user.HomeActivity;
 import com.intelligentcarmanagement.carmanagementapp.R;
-import com.intelligentcarmanagement.carmanagementapp.activities.driver.HistoryActivity;
 
 public class DrawerBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -50,7 +47,7 @@ public class DrawerBaseActivity extends AppCompatActivity implements NavigationV
                 overridePendingTransition(0, 0);
                 break;
             case R.id.nav_home:
-                startActivity(new Intent(this, HomeActivity.class));
+                startActivity(new Intent(this, DashboardActivity.class));
                 overridePendingTransition(0, 0);
                 break;
             case R.id.nav_profile:

@@ -1,12 +1,15 @@
-package com.intelligentcarmanagement.carmanagementapp.activities.driver;
+package com.intelligentcarmanagement.carmanagementapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.activities.DrawerBaseActivity;
@@ -19,10 +22,14 @@ import com.intelligentcarmanagement.carmanagementapp.models.Ride;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.zip.Inflater;
 
 public class DashboardActivity extends DrawerBaseActivity {
 
     ActivityDashboardBinding dashboardBinding;
+
+    // Ongoing ride control buttons
+    Button navigateToButton;
 
     // Dashboard notifications recycler view
     RecyclerView recyclerView;
@@ -38,10 +45,15 @@ public class DashboardActivity extends DrawerBaseActivity {
         setContentView(dashboardBinding.getRoot());
         allocateActivityTitle("Dashboard");
 
-        // Manage notifications
+        // Bind views to its controls
         recyclerView = findViewById(R.id.notifications_recycler_view);
+        navigateToButton = findViewById(R.id.dashboard_navigate_to_button);
 
+        // Manage notifications
         seedNotifcationsData();
+
+        // Set Event Listeners
+        setEventListeners();
     }
 
     private void initRecyclerView()
@@ -68,5 +80,21 @@ public class DashboardActivity extends DrawerBaseActivity {
                 new GregorianCalendar(2014, Calendar.FEBRUARY, 11).getTime(), btm));
 
         initRecyclerView();
+    }
+
+    private void setEventListeners()
+    {
+        navigateToButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToOngoingRide();
+            }
+        });
+    }
+
+    private void goToOngoingRide()
+    {
+        Intent intent = new Intent(DashboardActivity.this, NavigationActivity.class);
+        startActivity(intent);
     }
 }

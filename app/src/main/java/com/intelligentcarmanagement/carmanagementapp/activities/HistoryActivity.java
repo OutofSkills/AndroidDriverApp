@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.activities.driver;
+package com.intelligentcarmanagement.carmanagementapp.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -9,9 +9,7 @@ import android.os.Bundle;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.activities.DrawerBaseActivity;
 import com.intelligentcarmanagement.carmanagementapp.adapters.HistoryRecyclerViewAdapter;
-import com.intelligentcarmanagement.carmanagementapp.adapters.PlacesRecyclerViewAdapter;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityHistoryBinding;
-import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityHomeBinding;
 import com.intelligentcarmanagement.carmanagementapp.models.Ride;
 
 import java.util.ArrayList;

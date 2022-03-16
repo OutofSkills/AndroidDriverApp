@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 
-import com.intelligentcarmanagement.carmanagementapp.activities.driver.DashboardActivity;
 import com.intelligentcarmanagement.carmanagementapp.R;
 
 public class LoginActivity extends AppCompatActivity {
@@ -25,7 +24,7 @@ public class LoginActivity extends AppCompatActivity {
         loginRedirectRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(LoginActivity.this, RegisterActivity.class));
+                // TODO: Set a link to the Become a Driver FORM
             }
         });
 

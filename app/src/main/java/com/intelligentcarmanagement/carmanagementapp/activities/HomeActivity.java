@@ -1,6 +1,7 @@
 package com.intelligentcarmanagement.carmanagementapp.activities;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -21,7 +22,11 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -41,6 +46,11 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.Autocomplete;
+import com.google.android.libraries.places.widget.AutocompleteActivity;
+import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
@@ -54,20 +64,22 @@ import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityHomeBin
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class HomeActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
 
-    private static final String TAG = "MapsActivity";
+    private static final String TAG = "HomeActivity";
     private ActivityHomeBinding binding;
     private GoogleMap mMap;
     private Geocoder geocoder;
-    private int ACCESS_LOCATION_REQUEST_CODE = 10001;
+    private static final int ACCESS_LOCATION_REQUEST_CODE = 10001;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationManager mLocationManager;
+    private LatLng currentLocation;
 
-    Marker userLocationMarker;
+    Marker userLocationMarker, destinationMarker;
     Circle userLocationAccuracyCircle;
 
     // Maps polyline route
@@ -87,8 +99,8 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(100);
-        locationRequest.setFastestInterval(100);
+        locationRequest.setInterval(500);
+        locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
@@ -129,7 +141,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
             super.onLocationResult(locationResult);
             Log.d(TAG, "onLocationResult: " + locationResult.getLastLocation());
             if (mMap != null) {
-                drawRoute(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()), new LatLng(44.439663, 26.096306));
+                currentLocation = new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude());
                 setUserLocationMarker(locationResult.getLastLocation());
             }
         }
@@ -152,7 +164,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
             //use the previously created marker
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
         }
 
         if (userLocationAccuracyCircle == null) {
@@ -291,11 +303,16 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
             if (addresses.size() > 0) {
                 Address address = addresses.get(0);
                 String streetAddress = address.getAddressLine(0);
-                mMap.addMarker(new MarkerOptions()
+                if(destinationMarker != null)
+                    destinationMarker.remove();
+                destinationMarker = mMap.addMarker(new MarkerOptions()
                         .position(latLng)
                         .title(streetAddress)
                         .draggable(true)
                 );
+                // Make the route to the marker
+                if(currentLocation != null)
+                    drawRoute(currentLocation, latLng);
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -94,7 +94,7 @@ public class DashboardActivity extends DrawerBaseActivity {
 
     private void goToOngoingRide()
     {
-        Intent intent = new Intent(DashboardActivity.this, NavigationActivity.class);
+        Intent intent = new Intent(DashboardActivity.this, MapsActivity.class);
         startActivity(intent);
     }
 }

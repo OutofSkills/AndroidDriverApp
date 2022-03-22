@@ -29,9 +29,9 @@ public class DrivingEventsService {
         motionProcessorService = new MotionProcessorService(context);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public void processEvents()
+    public List<DrivingEvent> processEvents(int interval)
     {
+        List<DrivingEvent> drivingEvents = new ArrayList<>();
         List<Motion> data = new ArrayList<>();
         try {
             data = dbHelper.GetMotionData(1);
@@ -62,7 +62,7 @@ public class DrivingEventsService {
                 // make the average and do the processing
                 // k is used to store the number of processed instances
                 int k = 0;
-                if(getDateDiff(startTime, endTime, TimeUnit.SECONDS) >= 15)
+                if((endTime.getTime()-startTime.getTime())/1000 >= interval)
                 {
                     //processing data
                     DrivingEvent event  = motionProcessorService.doInference(new float[]{avgAccX/(i-k), avgAccY/(i-k), avgAccZ/(i-k),
@@ -73,19 +73,13 @@ public class DrivingEventsService {
                     Log.d("Processed data", "Events: " + event.getSuddenAcceleration() + " "
                     + event.getSuddenLTurn() + " " + event.getSuddenRTurn() + " " + event.getSuddenBreak());
 
+                    drivingEvents.add(event);
 
                     k = i;
                     startTime = endTime;
                 }
             }
         }
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
-        Duration d = Duration.between(date1.toInstant(), date2.toInstant());
-
-        //long diffInMillies = date2.getTime() - date1.getTime();
-        return d.toMillis()/1000;
+        return drivingEvents;
     }
 }

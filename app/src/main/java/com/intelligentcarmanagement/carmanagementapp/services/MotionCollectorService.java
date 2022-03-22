@@ -48,4 +48,9 @@ public class MotionCollectorService {
                     " timestamp: " + motionList.get(i).getTimestamp()
             );
     }
+
+    public void clearData()
+    {
+        dbHelper.ClearMotion();
+    }
 }

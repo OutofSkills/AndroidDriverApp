@@ -149,7 +149,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             //use the previously created marker
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
         }
 
         if (userLocationAccuracyCircle == null) {

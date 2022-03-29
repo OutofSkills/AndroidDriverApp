@@ -15,6 +15,8 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 public class ExcelExporter {
@@ -56,7 +58,9 @@ public class ExcelExporter {
 
         FileOutputStream fos = null;
         try {
-            filePath = new File(Environment.getExternalStorageDirectory() + "/MotionData.xls");
+            String fileName = new SimpleDateFormat("'MotionData_'yyyyMMddHHmmss'.xls'").format(new Date());
+            filePath = new File(Environment.getExternalStorageDirectory() + "/" + fileName);
+
             fos = new FileOutputStream(filePath);
             hssfWorkbook.write(fos);
         } catch (IOException e) {
@@ -100,7 +104,8 @@ public class ExcelExporter {
 
         FileOutputStream fos = null;
         try {
-            filePath = new File(Environment.getExternalStorageDirectory() + "/ResultData.xls");
+            String fileName = new SimpleDateFormat("'ResultData_'yyyyMMddHHmmss'.xls'").format(new Date());
+            filePath = new File(Environment.getExternalStorageDirectory() + "/" + fileName);
             fos = new FileOutputStream(filePath);
             hssfWorkbook.write(fos);
         } catch (IOException e) {

@@ -66,6 +66,10 @@ public class DrawerBaseActivity extends AppCompatActivity implements NavigationV
                 startActivity(new Intent(this, MotionSensorsActivity.class));
                 overridePendingTransition(0, 0);
                 break;
+            case R.id.nav_settings:
+                startActivity(new Intent(this, SettingsActivity.class));
+                overridePendingTransition(0, 0);
+                break;
         }
         return false;
     }

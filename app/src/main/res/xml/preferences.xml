@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    app:iconSpaceReserved="false">
+    >
+    <PreferenceCategory
+        android:key="notifications_category"
+        android:title="Notifications"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:key="notifications"
+            android:title="Push notifications"
+            android:summary="Ride confirmations, security notifications..."
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"/>
+
+        <SwitchPreferenceCompat
+            android:key="pref_newsletter"
+            android:title="Newsletter"
+            android:summary="News and tips about our app"
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"/>
+    </PreferenceCategory>
+
+
+</androidx.preference.PreferenceScreen>

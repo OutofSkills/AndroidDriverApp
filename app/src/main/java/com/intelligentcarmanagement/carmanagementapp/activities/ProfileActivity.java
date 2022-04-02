@@ -14,6 +14,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,13 +39,15 @@ public class ProfileActivity extends DrawerBaseActivity {
     private ImageView enableEditButton, chooseImageButton;
 
     // Details text views
-    private TextView profileFirstName, profileLastName, profilePhoneNumber;
+    private TextView profileFirstName, profileLastName, profilePhoneNumber, profileAddressText, profileAddressLabel;
     // Details text views bottom bars
     private View profileFirstNameBar, profileLastNameBar, profilePhoneNumberBar;
     // Edit details edit text views
-    private EditText profileFirstNameEdit, profileLastNameEdit, profilePhoneNumberEdit;
+    private EditText profileFirstNameEdit, profileLastNameEdit, profilePhoneNumberEdit, profileAddressEdit;
     // Save floating action button
     private FloatingActionButton saveProfileChangesButton;
+    // Linear layout container for address edit text
+    private LinearLayout addressEditTextContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +69,8 @@ public class ProfileActivity extends DrawerBaseActivity {
         profileFirstName = findViewById(R.id.profileFirstName);
         profileLastName = findViewById(R.id.profileLastName);
         profilePhoneNumber = findViewById(R.id.profilePhoneNumber);
+        profileAddressLabel = findViewById(R.id.profile_edit_address_text);
+        profileAddressText = findViewById(R.id.profileAddress);
         // Profile bottom bars
         profileFirstNameBar = findViewById(R.id.profile_first_name_bar);
         profileLastNameBar = findViewById(R.id.profile_last_name_bar);
@@ -74,6 +79,9 @@ public class ProfileActivity extends DrawerBaseActivity {
         profileFirstNameEdit = findViewById(R.id.profile_edit_first_name);
         profileLastNameEdit = findViewById(R.id.profile_edit_last_name);
         profilePhoneNumberEdit = findViewById(R.id.profile_edit_phone_number);
+        profileAddressEdit = findViewById(R.id.profile_edit_address);
+        // Profile address container
+        addressEditTextContainer = findViewById(R.id.profile_edit_address_container);
         // Floating button
         saveProfileChangesButton = findViewById(R.id.profile_floating_save_button);
         // Profile pic
@@ -122,6 +130,9 @@ public class ProfileActivity extends DrawerBaseActivity {
         profileFirstNameEdit.setVisibility(viewVisibility);
         profileLastNameEdit.setVisibility(viewVisibility);
         profilePhoneNumberEdit.setVisibility(viewVisibility);
+        addressEditTextContainer.setVisibility(viewVisibility);
+        profileAddressEdit.setVisibility(viewVisibility);
+        profileAddressLabel.setVisibility(viewVisibility);
         // Save button
         saveProfileChangesButton.setVisibility(viewVisibility);
     }
@@ -135,6 +146,7 @@ public class ProfileActivity extends DrawerBaseActivity {
         profileFirstName.setVisibility(viewVisibility);
         profileLastName.setVisibility(viewVisibility);
         profilePhoneNumber.setVisibility(viewVisibility);
+        profileAddressText.setVisibility(viewVisibility);
         // Bottom views bars
         profileFirstNameBar.setVisibility(viewVisibility);
         profileLastNameBar.setVisibility(viewVisibility);

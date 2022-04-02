@@ -52,7 +52,7 @@
                     android:textSize="28dp" />
 
                 <EditText
-                    android:id="@+id/loginEmail"
+                    android:id="@+id/login_email"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:fontFamily="sans-serif-light"
@@ -75,7 +75,7 @@
                     android:textSize="28dp" />
 
                 <EditText
-                    android:id="@+id/loginPassword"
+                    android:id="@+id/login_password"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:inputType="textPassword"

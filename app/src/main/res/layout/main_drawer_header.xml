@@ -7,6 +7,7 @@
     >
 
     <LinearLayout
+        android:id="@+id/header_linear_layout_container"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
@@ -28,7 +29,7 @@
         </androidx.cardview.widget.CardView>
 
         <TextView
-            android:id="@+id/drawer_user_username"
+            android:id="@+id/drawer_user_email"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"

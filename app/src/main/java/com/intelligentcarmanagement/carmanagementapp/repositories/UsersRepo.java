@@ -1,10 +1,17 @@
 package com.intelligentcarmanagement.carmanagementapp.repositories;
 
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+
 import com.intelligentcarmanagement.carmanagementapp.api.RetrofitService;
 import com.intelligentcarmanagement.carmanagementapp.models.Login.LoginRequest;
 import com.intelligentcarmanagement.carmanagementapp.models.Login.LoginResponse;
+import com.intelligentcarmanagement.carmanagementapp.models.User;
 import com.intelligentcarmanagement.carmanagementapp.services.login.ILoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.services.login.ILoginService;
+import com.intelligentcarmanagement.carmanagementapp.services.users.IGetUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.services.users.IUsersService;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -31,6 +38,33 @@ public class UsersRepo {
             @Override
             public void onFailure(Call<LoginResponse> call, Throwable t) {
                 loginResponse.onFailure(t);
+            }
+        });
+    }
+
+    public void getUserByEmail(String email, IGetUserResponse getUserResponse) {
+        IUsersService usersService = RetrofitService.getRetrofit().create(IUsersService.class);
+        Call<User> initRequest = usersService.getUserByEmail(email);
+
+        initRequest.enqueue(new Callback<User>() {
+
+            @Override
+            public void onResponse(@NonNull Call<User> call, Response<User> response) {
+                Log.d("Repo", "Body: " + response.body());
+                if(response.isSuccessful()) {
+                    Log.d("Repo", "Body: " + response.body());
+                    getUserResponse.onResponse(response.body());
+                }
+                else
+                {
+                    getUserResponse.onFailure(new Throwable(response.message()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("Repo", "Exception: " + t.getMessage());
+                getUserResponse.onFailure(t);
             }
         });
     }

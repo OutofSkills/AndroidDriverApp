@@ -21,9 +21,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DB_NAME = "carmng.db";
     private static final int DB_VERSION = 1;
 
+    // Authentication table details
+    private static final String TOKEN_TABLE = "Tokens";
+    private static final String COLUMN_TOKEN_ID = "Id";
+    private static final String COLUMN_TOKEN_VALUE = "Token";
+
     // Motion table details
     private static final String MOTION_TABLE = "Motion";
-    private static final String COLUMN_ID = "Id";
+    private static final String COLUMN_MOTION_ID = "Id";
     private static final String COLUMN_ACC_X = "AccX";
     private static final String COLUMN_ACC_Y = "AccY";
     private static final String COLUMN_ACC_Z = "AccZ";
@@ -39,12 +44,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     // this is called the first time the database is accessed.
     @Override
     public void onCreate(SQLiteDatabase db) {
-        String createMotionTable = "CREATE TABLE " + MOTION_TABLE + "("+ COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+        String createMotionTable = "CREATE TABLE " + MOTION_TABLE + "("+ COLUMN_MOTION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_ACC_X + " REAL, " + COLUMN_ACC_Y + " REAL, " + COLUMN_ACC_Z + " REAL, " +
                 COLUMN_GYRO_X + " REAL, " + COLUMN_GYRO_Y + " REAL, " + COLUMN_GYRO_Z + " REAL, " +
                 COLUMN_TIME_STAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP )";
 
         db.execSQL(createMotionTable);
+
+        String createTokensTable = "CREATE TABLE " + TOKEN_TABLE + "("+ COLUMN_TOKEN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_TOKEN_VALUE + " TEXT)";
+
+        db.execSQL(createTokensTable);
     }
 
     @Override
@@ -121,6 +131,52 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //Execute sql query to remove from database
         //NOTE: When removing by String in SQL, value must be enclosed with ''
         database.execSQL("DELETE FROM " + MOTION_TABLE);
+
+        //Close the database
+        database.close();
+    }
+
+    public void SaveToken(String token){
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+        cv.put(COLUMN_TOKEN_VALUE, token);
+
+        long result = db.insert(TOKEN_TABLE, null, cv);
+
+        db.close();
+    }
+
+    public String GetToken()
+    {
+        String token = null;
+
+        String queryString = "SELECT* FROM " + TOKEN_TABLE;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if(cursor.moveToFirst()) {
+            token = cursor.getString(1);
+        }
+        else {
+            // failure, we have nothing in the list
+        }
+
+        cursor.close();
+        db.close();
+
+        return token;
+    }
+
+    public void RemoveToken()
+    {
+        //Open the database
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        //Execute sql query to remove from database
+        //NOTE: When removing by String in SQL, value must be enclosed with ''
+        database.execSQL("DELETE FROM " + TOKEN_TABLE);
 
         //Close the database
         database.close();

@@ -13,29 +13,29 @@ import com.google.gson.Gson;
 import com.intelligentcarmanagement.carmanagementapp.database.DatabaseHelper;
 import com.intelligentcarmanagement.carmanagementapp.models.Login.LoginRequest;
 import com.intelligentcarmanagement.carmanagementapp.models.Login.LoginResponse;
+import com.intelligentcarmanagement.carmanagementapp.models.User;
 import com.intelligentcarmanagement.carmanagementapp.repositories.UsersRepo;
 import com.intelligentcarmanagement.carmanagementapp.services.login.ILoginResponse;
+import com.intelligentcarmanagement.carmanagementapp.services.users.IGetUserResponse;
 import com.intelligentcarmanagement.carmanagementapp.utils.JwtParser;
 import com.intelligentcarmanagement.carmanagementapp.utils.LoginState;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 
 import java.util.Map;
 
 public class LoginViewModel extends AndroidViewModel {
     MutableLiveData<LoginState> mLoginStateMutableData = new MutableLiveData<>();
     MutableLiveData<String> mLoginErrorMutableData = new MutableLiveData<>();
-    MutableLiveData<String> mUserEmailMutableData = new MutableLiveData<>();
 
+    SessionManager sessionManager;
     UsersRepo mUsersRepository;
     DatabaseHelper dbHelper;
 
     public LoginViewModel(Application context) {
         super(context);
-        if(mLoginStateMutableData == null)
-            mLoginStateMutableData = new MutableLiveData<>();
-        if(mLoginStateMutableData == null)
-            mLoginErrorMutableData = new MutableLiveData<>();
         mUsersRepository = new UsersRepo();
         dbHelper = new DatabaseHelper(context);
+        sessionManager = new SessionManager(context);
     }
 
     public void login(String email, String password)
@@ -55,15 +55,14 @@ public class LoginViewModel extends AndroidViewModel {
                         mLoginErrorMutableData.postValue("Server error. Please try again.");
                     }
 
-                    // Save the token in local storage
-                    dbHelper.SaveToken(token);
-
                     // Get the claims from the token
                     String payload = JwtParser.decoded(token);
                     Map<Object, Object> claims = decodeTokenClaims(payload);
-                    mUserEmailMutableData.postValue(claims.get("email").toString());
 
-                    mLoginStateMutableData.setValue(LoginState.SUCCESS);
+                    // Create a session
+                    sessionManager.createLoginSession(claims.get("id").toString(), claims.get("email").toString(), token);
+                    // Fetch the user to retrieve additional data
+                    fetchUser(claims.get("email").toString());
                 } catch (Exception e) {
                     mLoginErrorMutableData.postValue("Server error: " + e.getMessage());
                     mLoginStateMutableData.setValue(LoginState.ERROR);
@@ -79,12 +78,28 @@ public class LoginViewModel extends AndroidViewModel {
         });
     }
 
+    public void fetchUser(String email){
+
+        mUsersRepository.getUserByEmail(email, new IGetUserResponse() {
+            @Override
+            public void onResponse(User userResponse) {
+                sessionManager.addUserAvatar(userResponse.getAvatar());
+                mLoginStateMutableData.setValue(LoginState.SUCCESS);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d("Drawer", "Response user: " + t.getMessage());
+                mLoginStateMutableData.setValue(LoginState.ERROR);
+                mLoginErrorMutableData.postValue("Server error: " + t.getMessage());
+            }
+        });
+    }
+
     public LiveData<LoginState> getLoginState()
     {
         return mLoginStateMutableData;
     }
-
-    public LiveData<String> getLoginResult(){return mUserEmailMutableData;}
 
     public LiveData<String> getLoginError()
     {

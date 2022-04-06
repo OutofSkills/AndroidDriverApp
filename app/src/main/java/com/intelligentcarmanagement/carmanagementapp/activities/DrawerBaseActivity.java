@@ -11,7 +11,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
-import android.util.Log;
+import android.graphics.Bitmap;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
@@ -21,23 +21,22 @@ import android.widget.TextView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.navigation.NavigationView;
 import com.intelligentcarmanagement.carmanagementapp.R;
-import com.intelligentcarmanagement.carmanagementapp.models.User;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.DrawerViewModel;
-import com.intelligentcarmanagement.carmanagementapp.viewmodels.LoginViewModel;
 
 public class DrawerBaseActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     private static final String TAG = "DrawerBaseActivity";
-    private DrawerViewModel viewModel;
+    protected DrawerViewModel drawerViewModel;
 
-    private ShapeableImageView userAvatar;
-    private TextView userEmail;
+    protected ShapeableImageView userAvatar;
+    protected TextView userEmail;
 
     DrawerLayout drawerLayout;
 
     @Override
     public void setContentView(View view) {
-        drawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_drawer_base, null);
+        if(drawerLayout == null)
+            drawerLayout = (DrawerLayout) getLayoutInflater().inflate(R.layout.activity_drawer_base, null);
         FrameLayout container = drawerLayout.findViewById(R.id.activityContainter);
         container.addView(view);
         super.setContentView(drawerLayout);
@@ -59,13 +58,11 @@ public class DrawerBaseActivity extends AppCompatActivity implements NavigationV
         userAvatar = headerView.findViewById(R.id.drawer_user_avatar);
         userEmail = headerView.findViewById(R.id.drawer_user_email);
 
-        viewModel = ViewModelProviders.of(this).get(DrawerViewModel.class);
+        drawerViewModel = ViewModelProviders.of(this).get(DrawerViewModel.class);
+        drawerViewModel.getUserSession();
 
-        // Get intent parameters
-        // Get the authenticated user
-        Intent intent = getIntent();
-        String email = intent.getStringExtra("email");
-        setDrawerUserData(email);
+        // Set event listeners
+        initDrawerHeader();
     }
 
     @Override
@@ -90,7 +87,7 @@ public class DrawerBaseActivity extends AppCompatActivity implements NavigationV
                 overridePendingTransition(0, 0);
                 break;
             case R.id.nav_sign_out:
-                viewModel.logout();
+                drawerViewModel.logout();
                 startActivity(new Intent(this, LoginActivity.class));
                 overridePendingTransition(0, 0);
                 break;
@@ -116,17 +113,18 @@ public class DrawerBaseActivity extends AppCompatActivity implements NavigationV
 
     // Get the current authenticated user's data
     // and set it on the drawer
-    private void setDrawerUserData(String email) {
-        viewModel.fetchUser(email);
-        viewModel.getUserLiveData().observe(this, new Observer<User>() {
+    private void initDrawerHeader() {
+        drawerViewModel.getAvatarLiveData().observe(this, new Observer<Bitmap>() {
             @Override
-            public void onChanged(User user) {
-                userEmail.setText(user.getEmail());
+            public void onChanged(Bitmap bitmap) {
+                userAvatar.setImageBitmap(bitmap);
+            }
+        });
 
-                // If the base64 string that represents the image
-                // is empty then set a default image
-                if(user.getAvatar().matches(""))
-                    userAvatar.setImageDrawable(getResources().getDrawable(R.drawable.no_image));
+        drawerViewModel.getEmailLiveData().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                userEmail.setText(s);
             }
         });
     }

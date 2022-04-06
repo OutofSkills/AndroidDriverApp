@@ -5,11 +5,12 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Date;
 
 // Model class for holding driver account credentials
-public class User {
+public class User implements Serializable {
     @SerializedName("id")
     private int id;
     @SerializedName("firstName")

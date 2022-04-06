@@ -1,6 +1,8 @@
 package com.intelligentcarmanagement.carmanagementapp.viewmodels;
 
 import android.app.Application;
+import android.graphics.Bitmap;
+import android.media.Image;
 import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
@@ -10,43 +12,51 @@ import com.intelligentcarmanagement.carmanagementapp.activities.DrawerBaseActivi
 import com.intelligentcarmanagement.carmanagementapp.database.DatabaseHelper;
 import com.intelligentcarmanagement.carmanagementapp.models.User;
 import com.intelligentcarmanagement.carmanagementapp.repositories.UsersRepo;
+import com.intelligentcarmanagement.carmanagementapp.services.TokenService;
 import com.intelligentcarmanagement.carmanagementapp.services.users.IGetUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.utils.ImageConverter;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class DrawerViewModel extends AndroidViewModel {
-    private MutableLiveData<User> mUserLiveData = new MutableLiveData<>();
+    private MutableLiveData<Bitmap> mAvatarLiveData = new MutableLiveData<>();
+    private MutableLiveData<String> mEmailLiveData = new MutableLiveData<>();
 
     UsersRepo usersRepo;
-    DatabaseHelper dbHelper;
+    SessionManager sessionManager;
+
     public DrawerViewModel(Application context) {
         super(context);
         usersRepo = new UsersRepo();
-        dbHelper = new DatabaseHelper(context);
+        sessionManager = new SessionManager(context);
     }
 
-    // Fetch the user's data by using its email
-    public MutableLiveData<User> getUserLiveData() {
-        return mUserLiveData;
-    }
-
-    public void fetchUser(String email)
+    public void getUserSession()
     {
-        usersRepo.getUserByEmail(email, new IGetUserResponse() {
-            @Override
-            public void onResponse(User userResponse) {
-                mUserLiveData.postValue(userResponse);
-            }
+        HashMap<String, String> userData = sessionManager.getUserData();
 
-            @Override
-            public void onFailure(Throwable t) {
-                Log.d("Drawer", "Response user: " + t.getMessage());
-            }
-        });
+        // Get the avatar
+        byte[] imageBytes = ImageConverter.convertBase64ToBytes(userData.get(sessionManager.KEY_AVATAR));
+        mAvatarLiveData.postValue(ImageConverter.convertBytesToBitmap(imageBytes));
+
+        // Get the email
+        mEmailLiveData.postValue(userData.get(sessionManager.KEY_EMAIL));
+    }
+
+    public MutableLiveData<Bitmap> getAvatarLiveData() {
+        return mAvatarLiveData;
+    }
+
+    public MutableLiveData<String> getEmailLiveData() {
+        return mEmailLiveData;
     }
 
     public void logout()
     {
         try {
-            dbHelper.RemoveToken();
+            sessionManager.clearSession();
         }catch (Exception e)
         {
             Log.d("LoginViewModel", "Logout error: "+ e.getMessage());

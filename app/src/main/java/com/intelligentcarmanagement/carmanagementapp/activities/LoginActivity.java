@@ -85,16 +85,10 @@ public class LoginActivity extends AppCompatActivity {
                         progressIndicator.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
-                        mViewModel.getLoginResult().observe(LoginActivity.this, new Observer<String>() {
-                            @Override
-                            public void onChanged(String s) {
-                                progressIndicator.setVisibility(View.GONE);
-                                Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                                intent.putExtra("email", s);
-                                startActivity(intent);
-                                finish();
-                            }
-                        });
+                        progressIndicator.setVisibility(View.GONE);
+                        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                        startActivity(intent);
+                        finish();
                         break;
                     case ERROR:
                         Log.d(TAG, "Login error state");

@@ -11,6 +11,7 @@ import com.intelligentcarmanagement.carmanagementapp.models.User;
 import com.intelligentcarmanagement.carmanagementapp.services.login.ILoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.services.login.ILoginService;
 import com.intelligentcarmanagement.carmanagementapp.services.users.IGetUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.services.users.IUpdateUserResponse;
 import com.intelligentcarmanagement.carmanagementapp.services.users.IUsersService;
 
 import retrofit2.Call;
@@ -65,6 +66,34 @@ public class UsersRepo {
             public void onFailure(Call<User> call, Throwable t) {
                 Log.d("Repo", "Exception: " + t.getMessage());
                 getUserResponse.onFailure(t);
+            }
+        });
+    }
+
+    public void updateUser(int id, User user, IUpdateUserResponse updateUserResponse)
+    {
+        IUsersService usersService = RetrofitService.getRetrofit().create(IUsersService.class);
+        Call<User> initRequest = usersService.updateUser(id, user);
+
+        initRequest.enqueue(new Callback<User>() {
+
+            @Override
+            public void onResponse(@NonNull Call<User> call, Response<User> response) {
+                Log.d("Repo", "Body: " + response.body());
+                if(response.isSuccessful()) {
+                    Log.d("Repo", "Body: " + response.body());
+                    updateUserResponse.onResponse(response.body());
+                }
+                else
+                {
+                    updateUserResponse.onFailure(new Throwable(response.message()));
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                Log.d("Repo", "Exception: " + t.getMessage());
+                updateUserResponse.onFailure(t);
             }
         });
     }

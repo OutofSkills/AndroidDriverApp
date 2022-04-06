@@ -10,7 +10,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.google.gson.Gson;
 import com.intelligentcarmanagement.carmanagementapp.database.DatabaseHelper;
+import com.intelligentcarmanagement.carmanagementapp.services.TokenService;
 import com.intelligentcarmanagement.carmanagementapp.utils.JwtParser;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -18,35 +20,30 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class AuthViewModel extends AndroidViewModel {
-    private MutableLiveData<String> mEmailMutableData = new MutableLiveData<>();
-
-    private DatabaseHelper dbHelper;
+    private SessionManager sessionManager;
     private Map<Object, Object> claims;
 
     public AuthViewModel(Application context) {
         super(context);
-        dbHelper = new DatabaseHelper(context);
+        sessionManager = new SessionManager(context);
     }
 
     // Return true if the user token is valid
     // and false if it is null or expired
     public boolean IsAuthenticated() {
-        String token = dbHelper.GetToken();
+        String token = sessionManager.getUserData().get(sessionManager.KEY_TOKEN);
         if (token == null)
             return false;
 
         try {
-            String decodedPayload = JwtParser.decoded(token);
-            claims = getClaims(decodedPayload);
-
+            claims = new TokenService().decodePayloadClaims(token);
             // If the token is expired
             // remove it and redirect the user to the login screen
-            if(isTokenExpired(Long.parseLong(String.valueOf(claims.get("exp"))))) {
+            if(TokenService.isTokenExpired(Long.parseLong(String.valueOf(claims.get("exp"))))) {
                 Log.d("AuthViewModel", "Token expired");
-                dbHelper.RemoveToken();
+                sessionManager.clearSession();
                 return false;
             }
-            mEmailMutableData.postValue(String.valueOf(claims.get("email")));
 
             return true;
         } catch (Exception e) {
@@ -55,23 +52,5 @@ public class AuthViewModel extends AndroidViewModel {
 
         // Shouldn't reach here
         return false;
-    }
-
-    // Convert a json string to a Map
-    private Map<Object, Object> getClaims(String jsonString) {
-        Gson gson = new Gson();
-        return gson.fromJson(jsonString, Map.class);
-    }
-
-    // Verify if the token expiration date in seconds is
-    // bigger than the current time in milliseconds
-    private boolean isTokenExpired(long timeSpan) {
-        return System.currentTimeMillis()/1000 >= timeSpan ? true : false;
-    }
-
-    // Return the email if the user is authenticated
-    public LiveData<String> getLoginResult()
-    {
-        return mEmailMutableData;
     }
 }

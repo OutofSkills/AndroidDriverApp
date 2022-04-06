@@ -10,10 +10,14 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.utils.LoginState;
+import com.intelligentcarmanagement.carmanagementapp.utils.ValidationTextWatcher;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.LoginViewModel;
 
 public class LoginActivity extends AppCompatActivity {
@@ -28,8 +32,13 @@ public class LoginActivity extends AppCompatActivity {
     // Login progress
     private CircularProgressIndicator progressIndicator;
 
-    // Login email and password labels
-    private EditText emailEditText, passwordEditText;
+    // Login email and password edit texts
+    private TextInputEditText emailEditText, passwordEditText;
+    // Login email and password layouts
+    private TextInputLayout emailEditTextLayout, passwordEditTextLayout;
+
+    // Login text error
+    private TextView loginError;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,7 +52,14 @@ public class LoginActivity extends AppCompatActivity {
         loginButton = findViewById(R.id.loginButton);
         progressIndicator = findViewById(R.id.login_progress_indicator);
         emailEditText = findViewById(R.id.login_email);
+        emailEditTextLayout = findViewById(R.id.login_email_layout);
         passwordEditText = findViewById(R.id.login_password);
+        passwordEditTextLayout = findViewById(R.id.login_password_layout);
+        loginError = findViewById(R.id.login_error_message);
+
+        // Text changed listeners for validation
+        emailEditText.addTextChangedListener(new ValidationTextWatcher(emailEditText, emailEditTextLayout));
+        passwordEditText.addTextChangedListener(new ValidationTextWatcher(passwordEditText, passwordEditTextLayout));
 
         loginRedirectRegister.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -65,6 +81,7 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "Login state: " + state);
                 switch (state) {
                     case START:
+                        loginButton.setEnabled(false);
                         progressIndicator.setVisibility(View.VISIBLE);
                         break;
                     case SUCCESS:
@@ -82,7 +99,11 @@ public class LoginActivity extends AppCompatActivity {
                     case ERROR:
                         Log.d(TAG, "Login error state");
                         progressIndicator.setVisibility(View.GONE);
+                        loginButton.setEnabled(true);
                         break;
+                    default:
+                    loginButton.setEnabled(true);
+                    break;
                 }
             }
         });
@@ -91,6 +112,8 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onChanged(String s) {
                 Log.d(TAG, "Login error: " + s);
+                loginError.setVisibility(View.VISIBLE);
+                loginError.setText(s);
             }
         });
     }

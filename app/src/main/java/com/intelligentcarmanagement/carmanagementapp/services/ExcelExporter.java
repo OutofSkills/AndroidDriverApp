@@ -7,6 +7,8 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.intelligentcarmanagement.carmanagementapp.utils.FileManager;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -20,6 +22,9 @@ import java.util.Date;
 import java.util.List;
 
 public class ExcelExporter {
+    private static final String MOTION_DATA_FOLDER = "Motion Data";
+    private static final String RESULT_DATA_FOLDER = "Result Data";
+
     private File filePath;
     Context context;
 
@@ -59,10 +64,16 @@ public class ExcelExporter {
         FileOutputStream fos = null;
         try {
             String fileName = new SimpleDateFormat("'MotionData_'yyyyMMddHHmmss'.xls'").format(new Date());
-            filePath = new File(Environment.getExternalStorageDirectory() + "/" + fileName);
+            File dirPath = FileManager.commonDocumentDirPath("MotionData");
 
-            fos = new FileOutputStream(filePath);
-            hssfWorkbook.write(fos);
+            if(dirPath != null)
+            {
+                filePath = new File(dirPath + "/" + fileName);
+                fos = new FileOutputStream(filePath);
+                hssfWorkbook.write(fos);
+            }else {
+                Toast.makeText(context, "Unable to save the file " + fileName + ".", Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
@@ -105,9 +116,16 @@ public class ExcelExporter {
         FileOutputStream fos = null;
         try {
             String fileName = new SimpleDateFormat("'ResultData_'yyyyMMddHHmmss'.xls'").format(new Date());
-            filePath = new File(Environment.getExternalStorageDirectory() + "/" + fileName);
-            fos = new FileOutputStream(filePath);
-            hssfWorkbook.write(fos);
+            File dirPath = FileManager.commonDocumentDirPath("ResultData");
+
+            if(dirPath != null)
+            {
+                filePath = new File(dirPath + "/" + fileName);
+                fos = new FileOutputStream(filePath);
+                hssfWorkbook.write(fos);
+            }else {
+                Toast.makeText(context, "Unable to save the file " + fileName + ".", Toast.LENGTH_SHORT).show();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

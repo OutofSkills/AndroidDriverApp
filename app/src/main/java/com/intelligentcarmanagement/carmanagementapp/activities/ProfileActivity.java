@@ -48,7 +48,7 @@ public class ProfileActivity extends DrawerBaseActivity {
     // Image buttons
     private ImageView enableEditButton, chooseImageButton;
     // Details text views
-    private TextView profileFirstName, profileLastName, profilePhoneNumber, profileAddressText, profileAddressLabel, profileEmail;
+    private TextView profileFirstName, profileLastName, profilePhoneNumber, profileAddressText, profileAddressLabel, profileEmail, profileRidesNumber, profileRating;
     // Details text views bottom bars
     private View profileFirstNameBar, profileLastNameBar, profilePhoneNumberBar;
     // Edit details edit text views
@@ -81,6 +81,8 @@ public class ProfileActivity extends DrawerBaseActivity {
         profileAddressLabel = findViewById(R.id.profile_edit_address_text);
         profileAddressText = findViewById(R.id.profileAddress);
         profileEmail = findViewById(R.id.profile_email);
+        profileRating = findViewById(R.id.profile_rating);
+        profileRidesNumber = findViewById(R.id.profile_rides_number);
         // Profile bottom bars
         profileFirstNameBar = findViewById(R.id.profile_first_name_bar);
         profileLastNameBar = findViewById(R.id.profile_last_name_bar);
@@ -120,12 +122,8 @@ public class ProfileActivity extends DrawerBaseActivity {
         saveProfileChangesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                enableProfileEditViews(false);
-                enableProfileTextViews(true);
-
                 // Change the user's data here
                 editUserProfile();
-
                 Toast.makeText(ProfileActivity.this, "Saved", Toast.LENGTH_SHORT).show();
             }
         });
@@ -159,6 +157,10 @@ public class ProfileActivity extends DrawerBaseActivity {
                     Log.d(TAG, "State: editing");
                 else {
                     Log.d(TAG, "State: done");
+                    // Enable the text views and disable the edit texts
+                    enableProfileEditViews(false);
+                    enableProfileTextViews(true);
+
                     // Update the drawer avatar
                     User user = profileViewModel.getUserMutableLiveData().getValue();
                     byte[] imageBytes = ImageConverter.convertBase64ToBytes(user.getAvatar());
@@ -245,6 +247,8 @@ public class ProfileActivity extends DrawerBaseActivity {
             profileFirstName.setText(user.getFirstName());
             profileLastName.setText(user.getLastName());
             profilePhoneNumber.setText(user.getPhoneNumber());
+            profileRating.setText(String.valueOf(user.getRating()) + "/10");
+            profileRidesNumber.setText(String.valueOf(user.getDeservedClients()));
 
             // Edit texts
             profileAddressEdit.setText("Not specified yet");

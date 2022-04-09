@@ -10,9 +10,12 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.intelligentcarmanagement.carmanagementapp.R;
+import com.intelligentcarmanagement.carmanagementapp.viewmodels.ChangePasswordViewModel;
 
 public class ProfileSettingsActivity extends AppCompatActivity {
 
+    // View model
+    ChangePasswordViewModel mViewModel;
     // Back button
     private ImageView editEmail, editPassword;
 

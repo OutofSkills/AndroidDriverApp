@@ -89,7 +89,7 @@ public class LoginViewModel extends AndroidViewModel {
 
             @Override
             public void onFailure(Throwable t) {
-                Log.d("Drawer", "Response user: " + t.getMessage());
+                Log.d("LoginViewModel", "Response user: " + t.getMessage());
                 mLoginStateMutableData.setValue(LoginState.ERROR);
                 mLoginErrorMutableData.postValue("Server error: " + t.getMessage());
             }

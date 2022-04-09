@@ -1,13 +1,8 @@
 package com.intelligentcarmanagement.carmanagementapp.models;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Date;
 
 // Model class for holding driver account credentials
 public class User implements Serializable {
@@ -33,8 +28,14 @@ public class User implements Serializable {
     private int addressId;
     @SerializedName("statusId")
     private int statusId;
+    @SerializedName("deservedClients")
+    private int deservedClients;
+    @SerializedName("rating")
+    private float rating;
+    @SerializedName("isAvailable")
+    private boolean isAvailable;
 
-    public User(int id, String firstName, String lastName, int age, String phoneNumber, String registrationDate, String avatar, String email, String userName, int addressId, int statusId) {
+    public User(int id, String firstName, String lastName, int age, String phoneNumber, String registrationDate, String avatar, String email, String userName, int addressId, int statusId, int deservedClients, float rating, boolean isAvailable) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -46,6 +47,9 @@ public class User implements Serializable {
         this.userName = userName;
         this.addressId = addressId;
         this.statusId = statusId;
+        this.deservedClients = deservedClients;
+        this.rating = rating;
+        this.isAvailable = isAvailable;
     }
 
     public int getId() {
@@ -136,6 +140,30 @@ public class User implements Serializable {
         this.statusId = statusId;
     }
 
+    public int getDeservedClients() {
+        return deservedClients;
+    }
+
+    public void setDeservedClients(int deservedClients) {
+        this.deservedClients = deservedClients;
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public void setRating(float rating) {
+        this.rating = rating;
+    }
+
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        isAvailable = available;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -144,12 +172,15 @@ public class User implements Serializable {
                 ", lastName='" + lastName + '\'' +
                 ", age=" + age +
                 ", phoneNumber='" + phoneNumber + '\'' +
-                ", registrationDate=" + registrationDate +
-                ", avatar=" + avatar +
+                ", registrationDate='" + registrationDate + '\'' +
+                ", avatar='" + avatar + '\'' +
                 ", email='" + email + '\'' +
                 ", userName='" + userName + '\'' +
                 ", addressId=" + addressId +
                 ", statusId=" + statusId +
+                ", deservedClients=" + deservedClients +
+                ", rating=" + rating +
+                ", isAvailable=" + isAvailable +
                 '}';
     }
 }

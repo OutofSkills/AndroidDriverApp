@@ -52,7 +52,8 @@ public class ProfileViewModel extends AndroidViewModel {
         mUsersRepository.updateUser(user.getId(), user, new IUpdateUserResponse() {
             @Override
             public void onResponse(User user) {
-                Log.d("ProfileViewModel", "Success");
+                Log.d("ProfileViewModel", "Success update");
+                mUserMutableLiveData.setValue(user);
                 sessionManager.addUserAvatar(user.getAvatar());
             }
 

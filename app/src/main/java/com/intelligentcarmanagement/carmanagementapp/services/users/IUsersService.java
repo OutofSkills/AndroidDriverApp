@@ -12,9 +12,9 @@ import retrofit2.http.PUT;
 import retrofit2.http.Query;
 
 public interface IUsersService {
-    @GET("/api/Users/byEmail")
+    @GET("/api/Drivers/byEmail")
     Call<User> getUserByEmail(@Query("email") String email);
 
-    @PUT("/api/Users")
+    @PUT("/api/Drivers")
     Call<User> updateUser(@Query("id") int id, @Body User user);
 }

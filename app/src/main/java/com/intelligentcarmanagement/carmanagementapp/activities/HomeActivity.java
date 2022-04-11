@@ -14,6 +14,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -25,6 +28,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toolbar;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -37,6 +43,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -70,10 +77,11 @@ import java.util.List;
 public class HomeActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
 
     private static final String TAG = "HomeActivity";
+    private static final int ACCESS_LOCATION_REQUEST_CODE = 10001;
+
     private ActivityHomeBinding binding;
     private GoogleMap mMap;
     private Geocoder geocoder;
-    private static final int ACCESS_LOCATION_REQUEST_CODE = 10001;
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationManager mLocationManager;
@@ -84,6 +92,10 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
 
     // Maps polyline route
     private Polyline polyline;
+
+    // Toolbar controls
+    private ImageView backButtonImage, searchButtonImage;
+    private TextView targetDistanceTextView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,9 +111,17 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         locationRequest = LocationRequest.create();
-        locationRequest.setInterval(500);
+        locationRequest.setInterval(2000);
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        // bind controls to objects
+        backButtonImage = findViewById(R.id.home_toolbar_back);
+        searchButtonImage = findViewById(R.id.home_toolbar_search);
+        targetDistanceTextView = findViewById(R.id.home_toolbar_target_distance);
+
+        // set event listeners
+        setEventListeners();
     }
 
     /**
@@ -158,14 +178,16 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
             markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.redcar));
             markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
+            markerOptions.flat(true);
             userLocationMarker = mMap.addMarker(markerOptions);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 16));
         } else  {
             //use the previously created marker
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
-            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
         }
+        updateCameraBearing(mMap, location.getBearing());
 
         if (userLocationAccuracyCircle == null) {
             CircleOptions circleOptions = new CircleOptions();
@@ -388,5 +410,25 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
                 });
 
         alertDialog.show();
+    }
+
+    private void updateCameraBearing(GoogleMap googleMap, float bearing) {
+        if ( googleMap == null) return;
+        CameraPosition camPos = CameraPosition
+                .builder(
+                        googleMap.getCameraPosition() // current Camera
+                )
+                .bearing(bearing)
+                .build();
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
+    }
+
+    private void setEventListeners(){
+        backButtonImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                finish();
+            }
+        });
     }
 }

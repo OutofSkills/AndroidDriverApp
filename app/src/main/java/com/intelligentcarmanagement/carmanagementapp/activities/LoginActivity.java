@@ -1,5 +1,6 @@
 package com.intelligentcarmanagement.carmanagementapp.activities;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -11,10 +12,14 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.utils.LoginState;
 import com.intelligentcarmanagement.carmanagementapp.utils.ValidationTextWatcher;
@@ -60,6 +65,24 @@ public class LoginActivity extends AppCompatActivity {
         // Text changed listeners for validation
         emailEditText.addTextChangedListener(new ValidationTextWatcher(emailEditText, emailEditTextLayout));
         passwordEditText.addTextChangedListener(new ValidationTextWatcher(passwordEditText, passwordEditTextLayout));
+
+
+        // Testing---
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String token = task.getResult();
+                        Log.d(TAG, token);
+                    }
+                });
+
 
         loginRedirectRegister.setOnClickListener(new View.OnClickListener() {
             @Override

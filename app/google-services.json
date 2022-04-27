@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "392177733979",
+    "project_id": "wordpresscarrental",
+    "storage_bucket": "wordpresscarrental.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:392177733979:android:1c87a09f904f7113814a7e",
+        "android_client_info": {
+          "package_name": "com.intelligentcarmanagement.carmanagementapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "392177733979-00henevuuvb8d5a38e7dr37kpet52gbh.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.intelligentcarmanagement.carmanagementapp",
+            "certificate_hash": "28b08e433cb2036003b77188014d3a784eb9cae1"
+          }
+        },
+        {
+          "client_id": "392177733979-ke8nehnqd9l4egf5jl0s9ijubcsk2vha.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyARS_FWM_iMnQsNM51_Wz6eiyQ-b4oZ8ow"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "392177733979-ke8nehnqd9l4egf5jl0s9ijubcsk2vha.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

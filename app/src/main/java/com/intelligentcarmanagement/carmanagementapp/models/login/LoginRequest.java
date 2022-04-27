@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.models.Login;
+package com.intelligentcarmanagement.carmanagementapp.models.login;
 
 import com.google.gson.annotations.SerializedName;
 

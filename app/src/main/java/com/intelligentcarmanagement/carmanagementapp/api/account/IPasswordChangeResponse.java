@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.services.account;
+package com.intelligentcarmanagement.carmanagementapp.api.account;
 
 import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerErrorResponse;
 import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerValidationError;

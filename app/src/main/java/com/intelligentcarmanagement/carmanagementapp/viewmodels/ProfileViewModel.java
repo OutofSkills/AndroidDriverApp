@@ -9,10 +9,9 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.intelligentcarmanagement.carmanagementapp.models.User;
 import com.intelligentcarmanagement.carmanagementapp.repositories.UsersRepo;
-import com.intelligentcarmanagement.carmanagementapp.services.users.IGetUserResponse;
-import com.intelligentcarmanagement.carmanagementapp.services.users.IUpdateUserResponse;
-import com.intelligentcarmanagement.carmanagementapp.utils.LoginState;
-import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.api.users.IGetUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.IUpdateUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
 
 public class ProfileViewModel extends AndroidViewModel {
     private MutableLiveData<User> mUserMutableLiveData = new MutableLiveData<>();

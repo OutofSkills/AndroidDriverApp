@@ -4,9 +4,12 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -27,6 +30,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -58,6 +62,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
+import com.google.android.material.switchmaterial.SwitchMaterial;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
@@ -68,6 +73,7 @@ import com.google.maps.model.DirectionsStep;
 import com.google.maps.model.EncodedPolyline;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityHomeBinding;
+import com.intelligentcarmanagement.carmanagementapp.viewmodels.HomeViewModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -78,8 +84,11 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
 
     private static final String TAG = "HomeActivity";
     private static final int ACCESS_LOCATION_REQUEST_CODE = 10001;
+    private static final int AUTOCOMPLETE_REQUEST_CODE = 10002;
 
     private ActivityHomeBinding binding;
+    private HomeViewModel mViewModel;
+
     private GoogleMap mMap;
     private Geocoder geocoder;
     FusedLocationProviderClient fusedLocationProviderClient;
@@ -97,11 +106,19 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
     private ImageView backButtonImage, searchButtonImage;
     private TextView targetDistanceTextView;
 
+    // Bottom controls
+    private TextView driverStateInfo;
+    private SwitchCompat driverState;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        // Instantiate the view model
+        mViewModel = new ViewModelProvider(this).get(HomeViewModel.class);
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.home_map);
@@ -119,6 +136,8 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         backButtonImage = findViewById(R.id.home_toolbar_back);
         searchButtonImage = findViewById(R.id.home_toolbar_search);
         targetDistanceTextView = findViewById(R.id.home_toolbar_target_distance);
+        driverState = findViewById(R.id.home_driver_state);
+        driverStateInfo = findViewById(R.id.home_driver_state_info);
 
         // set event listeners
         setEventListeners();
@@ -423,11 +442,90 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
     }
 
+    // Initiate an autocomplete activity
+    // and set a callback to obtain results
+    private void searchPlace() {
+        if (!Places.isInitialized()) {
+            Places.initialize(this, getResources().getString(R.string.google_maps_key));
+        }
+        // Set the fields to specify which types of place data to
+        // return after the user has made a selection.
+        List<Place.Field> fields = Arrays.asList(Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.ADDRESS);
+        // Filter places vy country
+        List<String> filterCountry = Arrays.asList("RO", "MD");
+        // Start the autocomplete intent.
+        Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
+                .setCountries(filterCountry).build(this);
+        startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+    }
+
+    // Obtain the autocomplete activity results
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                Place place = Autocomplete.getPlaceFromIntent(data);
+                Log.i(TAG, "Place: " + place.getName() + ", " + place.getLatLng() + ", " + place.getAddress());
+
+                if(destinationMarker != null)
+                    destinationMarker.remove();
+                destinationMarker = mMap.addMarker(new MarkerOptions()
+                        .position(place.getLatLng())
+                        .title(place.getAddress())
+                        .draggable(true)
+                );
+
+            } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
+                // TODO: Handle the error.
+                Status status = Autocomplete.getStatusFromIntent(data);
+                Log.i(TAG, status.getStatusMessage());
+            } else if (resultCode == RESULT_CANCELED) {
+                // The user canceled the operation.
+                Log.i(TAG, "Autocomplete canceled.");
+            }
+            return;
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+
     private void setEventListeners(){
+        // Toolbar back button
         backButtonImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 finish();
+            }
+        });
+        // Init driver state
+        mViewModel.isAvailable().observe(HomeActivity.this, new Observer<Boolean>() {
+            @Override
+            public void onChanged(Boolean aBoolean) {
+                Log.d(TAG, "onChanged: Is available: " + aBoolean);
+                driverState.setChecked(aBoolean);
+                driverStateInfo.setText(aBoolean ? "Available" : "Not available");
+            }
+        });
+        // Switch driver state
+        driverState.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                if(b == true)
+                {
+                    mViewModel.makeDriverAvailable(true);
+                    // TODO: share location and make driver available here
+                }
+                else
+                {
+                    mViewModel.makeDriverAvailable(false);
+                    // TODO: stop sharing location and make driver unavailable here
+                }
+            }
+        });
+        // Search place button
+        searchButtonImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchPlace();
             }
         });
     }

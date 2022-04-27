@@ -1,25 +1,25 @@
 package com.intelligentcarmanagement.carmanagementapp.viewmodels;
 
 import android.app.Application;
-import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.google.gson.Gson;
 import com.intelligentcarmanagement.carmanagementapp.database.DatabaseHelper;
-import com.intelligentcarmanagement.carmanagementapp.models.Login.LoginRequest;
-import com.intelligentcarmanagement.carmanagementapp.models.Login.LoginResponse;
+import com.intelligentcarmanagement.carmanagementapp.models.login.LoginRequest;
+import com.intelligentcarmanagement.carmanagementapp.models.login.LoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.models.User;
+import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerErrorResponse;
+import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerValidationError;
 import com.intelligentcarmanagement.carmanagementapp.repositories.UsersRepo;
-import com.intelligentcarmanagement.carmanagementapp.services.login.ILoginResponse;
-import com.intelligentcarmanagement.carmanagementapp.services.users.IGetUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.login.ILoginResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.IGetUserResponse;
 import com.intelligentcarmanagement.carmanagementapp.utils.JwtParser;
 import com.intelligentcarmanagement.carmanagementapp.utils.LoginState;
-import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
 
 import java.util.Map;
 
@@ -75,6 +75,18 @@ public class LoginViewModel extends AndroidViewModel {
                 mLoginStateMutableData.setValue(LoginState.ERROR);
                 mLoginErrorMutableData.postValue("Server error: " + t.getMessage());
             }
+
+            @Override
+            public void onServerValidationFailure(ServerValidationError errorValidationResponse) {
+                mLoginStateMutableData.setValue(LoginState.ERROR);
+                mLoginErrorMutableData.postValue("Server error: " + errorValidationResponse.getErrors().values());
+            }
+
+            @Override
+            public void onServerFailure(ServerErrorResponse serverErrorResponse) {
+                mLoginStateMutableData.setValue(LoginState.ERROR);
+                mLoginErrorMutableData.postValue("Server error: " + serverErrorResponse.getMessage());
+            }
         });
     }
 
@@ -84,6 +96,7 @@ public class LoginViewModel extends AndroidViewModel {
             @Override
             public void onResponse(User userResponse) {
                 sessionManager.addUserAvatar(userResponse.getAvatar());
+                sessionManager.changeAvailability(userResponse.isAvailable());
                 mLoginStateMutableData.setValue(LoginState.SUCCESS);
             }
 

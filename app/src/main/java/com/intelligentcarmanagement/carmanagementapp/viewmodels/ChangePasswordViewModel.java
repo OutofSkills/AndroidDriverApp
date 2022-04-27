@@ -1,11 +1,9 @@
 package com.intelligentcarmanagement.carmanagementapp.viewmodels;
 
 import android.app.Application;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
@@ -13,8 +11,8 @@ import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerErrorRe
 import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerValidationError;
 import com.intelligentcarmanagement.carmanagementapp.models.account.ChangePasswordDTO;
 import com.intelligentcarmanagement.carmanagementapp.repositories.AccountRepo;
-import com.intelligentcarmanagement.carmanagementapp.services.account.IPasswordChangeResponse;
-import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.api.account.IPasswordChangeResponse;
+import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;

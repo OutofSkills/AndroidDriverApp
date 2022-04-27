@@ -1,23 +1,14 @@
 package com.intelligentcarmanagement.carmanagementapp.viewmodels;
 
 import android.app.Application;
-import android.content.Context;
 import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
-import com.google.gson.Gson;
-import com.intelligentcarmanagement.carmanagementapp.database.DatabaseHelper;
 import com.intelligentcarmanagement.carmanagementapp.services.TokenService;
-import com.intelligentcarmanagement.carmanagementapp.utils.JwtParser;
-import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
 
-import java.util.Arrays;
-import java.util.Date;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class AuthViewModel extends AndroidViewModel {
     private SessionManager sessionManager;

@@ -30,26 +30,29 @@ public class User implements Serializable {
     private int statusId;
     @SerializedName("deservedClients")
     private int deservedClients;
+    @SerializedName("currentLat")
+    private String currentLat;
+    @SerializedName("currentLong")
+    private String currentLong;
     @SerializedName("rating")
     private float rating;
     @SerializedName("isAvailable")
     private boolean isAvailable;
 
-    public User(int id, String firstName, String lastName, int age, String phoneNumber, String registrationDate, String avatar, String email, String userName, int addressId, int statusId, int deservedClients, float rating, boolean isAvailable) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.age = age;
-        this.phoneNumber = phoneNumber;
-        this.registrationDate = registrationDate;
-        this.avatar = avatar;
-        this.email = email;
-        this.userName = userName;
-        this.addressId = addressId;
-        this.statusId = statusId;
-        this.deservedClients = deservedClients;
-        this.rating = rating;
-        this.isAvailable = isAvailable;
+    public String getCurrentLat() {
+        return currentLat;
+    }
+
+    public void setCurrentLat(String currentLat) {
+        this.currentLat = currentLat;
+    }
+
+    public String getCurrentLong() {
+        return currentLong;
+    }
+
+    public void setCurrentLong(String currentLong) {
+        this.currentLong = currentLong;
     }
 
     public int getId() {

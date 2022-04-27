@@ -4,15 +4,21 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import com.google.gson.Gson;
 import com.intelligentcarmanagement.carmanagementapp.api.RetrofitService;
-import com.intelligentcarmanagement.carmanagementapp.models.Login.LoginRequest;
-import com.intelligentcarmanagement.carmanagementapp.models.Login.LoginResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.IMakeAvailableResponse;
+import com.intelligentcarmanagement.carmanagementapp.models.login.LoginRequest;
+import com.intelligentcarmanagement.carmanagementapp.models.login.LoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.models.User;
-import com.intelligentcarmanagement.carmanagementapp.services.login.ILoginResponse;
-import com.intelligentcarmanagement.carmanagementapp.services.login.ILoginService;
-import com.intelligentcarmanagement.carmanagementapp.services.users.IGetUserResponse;
-import com.intelligentcarmanagement.carmanagementapp.services.users.IUpdateUserResponse;
-import com.intelligentcarmanagement.carmanagementapp.services.users.IUsersService;
+import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerErrorResponse;
+import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerValidationError;
+import com.intelligentcarmanagement.carmanagementapp.api.login.ILoginResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.login.ILoginRequests;
+import com.intelligentcarmanagement.carmanagementapp.api.users.IGetUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.IUpdateUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.IUsersRequests;
+
+import java.io.IOException;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -20,19 +26,50 @@ import retrofit2.Response;
 
 public class UsersRepo {
 
+    private static final String TAG = "UsersRepo";
+
     public void loginRemote(LoginRequest loginRequest, ILoginResponse loginResponse) {
-        ILoginService loginService = RetrofitService.getRetrofit().create(ILoginService.class);
+        ILoginRequests loginService = RetrofitService.getRetrofit().create(ILoginRequests.class);
         Call<LoginResponse> initLogin = loginService.login(loginRequest);
 
         initLogin.enqueue(new Callback<LoginResponse>() {
             @Override
             public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+
                 if(response.isSuccessful()) {
                     loginResponse.onResponse(response.body());
                 }
-                else
-                {
-                    loginResponse.onFailure(new Throwable(response.message()));
+                else {
+                    // TODO: user error codes from HTTP
+                    // 400 for validation
+                    // 500 for server errors
+                    int responseErrorCode = (400 == response.code()) ? 0 :
+                            (401 <= response.code() && response.code() < 500) ? 1 :
+                                    (500 <= response.code() && response.code() <= 600) ? 2 : 3;
+
+                    try {
+                        Gson gson = new Gson();
+                        switch (responseErrorCode) {
+                            case 0: // Validation error response
+                                Log.d(TAG, "Code: " + response.code() + " validation error.");
+                                ServerValidationError errorValidationResponse = gson.fromJson(response.errorBody().string(), ServerValidationError.class);
+                                loginResponse.onServerValidationFailure(errorValidationResponse);
+                                break;
+                            case 1:
+                                Log.d(TAG, "Code: " + response.code() + " client error.");
+                            case 2:
+                                Log.d(TAG, "Code: " + response.code() + " server error.");
+                                ServerErrorResponse serverErrorResponse = gson.fromJson(response.errorBody().string(), ServerErrorResponse.class);
+                                loginResponse.onServerFailure(serverErrorResponse);
+                                break;
+                            case 3:
+                                Log.d(TAG, "Code: " + response.code() + " other error.");
+                                loginResponse.onServerFailure(new ServerErrorResponse("Server error!", "Unknown"));
+                                break;
+                        }
+                    } catch (Exception e) {
+                        Log.d(TAG, "Response parse exception: " + e.getMessage());
+                    }
                 }
             }
 
@@ -44,7 +81,7 @@ public class UsersRepo {
     }
 
     public void getUserByEmail(String email, IGetUserResponse getUserResponse) {
-        IUsersService usersService = RetrofitService.getRetrofit().create(IUsersService.class);
+        IUsersRequests usersService = RetrofitService.getRetrofit().create(IUsersRequests.class);
         Call<User> initRequest = usersService.getUserByEmail(email);
 
         initRequest.enqueue(new Callback<User>() {
@@ -72,7 +109,7 @@ public class UsersRepo {
 
     public void updateUser(int id, User user, IUpdateUserResponse updateUserResponse)
     {
-        IUsersService usersService = RetrofitService.getRetrofit().create(IUsersService.class);
+        IUsersRequests usersService = RetrofitService.getRetrofit().create(IUsersRequests.class);
         Call<User> initRequest = usersService.updateUser(id, user);
 
         initRequest.enqueue(new Callback<User>() {
@@ -94,6 +131,35 @@ public class UsersRepo {
             public void onFailure(Call<User> call, Throwable t) {
                 Log.d("Repo", "Exception: " + t.getMessage());
                 updateUserResponse.onFailure(t);
+            }
+        });
+    }
+
+    public void makeAvailable(int id, boolean isAvailable, IMakeAvailableResponse makeAvailableResponse)
+    {
+        IUsersRequests usersService = RetrofitService.getRetrofit().create(IUsersRequests.class);
+        Call<Boolean> initRequest = usersService.makeAvailable(id, isAvailable);
+
+        initRequest.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if(response.isSuccessful())
+                {
+                    makeAvailableResponse.onResponse(response.body());
+                }
+                else
+                {
+                    try {
+                        makeAvailableResponse.onFailure(new Throwable(response.errorBody().string()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                makeAvailableResponse.onFailure(t);
             }
         });
     }

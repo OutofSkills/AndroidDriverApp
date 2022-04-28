@@ -33,6 +33,7 @@ public class NotificationsManager {
                 .setSmallIcon(R.drawable.ic_outline_directions_car_24)
                 .setContentTitle(title)
                 .setContentText(text)
+                .setColor(mContext.getResources().getColor(R.color.dark_grey))
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         NotificationManagerCompat mNotificationMngr = NotificationManagerCompat.from(mContext);

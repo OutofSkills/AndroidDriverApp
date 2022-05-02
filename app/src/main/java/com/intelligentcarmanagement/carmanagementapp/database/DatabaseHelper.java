@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 
 import androidx.annotation.Nullable;
 
-import com.intelligentcarmanagement.carmanagementapp.models.Motion;
+import com.intelligentcarmanagement.carmanagementapp.models.utils.Motion;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -19,12 +19,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
     // database details
     private static final String DB_NAME = "carmng.db";
-    private static final int DB_VERSION = 1;
-
-    // Authentication table details
-    private static final String TOKEN_TABLE = "Tokens";
-    private static final String COLUMN_TOKEN_ID = "Id";
-    private static final String COLUMN_TOKEN_VALUE = "Token";
+    private static final int DB_VERSION = 2;
 
     // Motion table details
     private static final String MOTION_TABLE = "Motion";
@@ -35,6 +30,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_GYRO_X = "GyroX";
     private static final String COLUMN_GYRO_Y = "GyroY";
     private static final String COLUMN_GYRO_Z = "GyroZ";
+    private static final String COLUMN_CLASS = "Class";
     private static final String COLUMN_TIME_STAMP = "TimeStamp";
 
     public DatabaseHelper(@Nullable Context context) {
@@ -47,14 +43,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createMotionTable = "CREATE TABLE " + MOTION_TABLE + "("+ COLUMN_MOTION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_ACC_X + " REAL, " + COLUMN_ACC_Y + " REAL, " + COLUMN_ACC_Z + " REAL, " +
                 COLUMN_GYRO_X + " REAL, " + COLUMN_GYRO_Y + " REAL, " + COLUMN_GYRO_Z + " REAL, " +
-                COLUMN_TIME_STAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP )";
+                COLUMN_TIME_STAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP, " + COLUMN_CLASS + " INTEGER )";
 
         db.execSQL(createMotionTable);
-
-        String createTokensTable = "CREATE TABLE " + TOKEN_TABLE + "("+ COLUMN_TOKEN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                COLUMN_TOKEN_VALUE + " TEXT)";
-
-        db.execSQL(createTokensTable);
     }
 
     @Override
@@ -75,6 +66,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cv.put(COLUMN_GYRO_X, motion.getGyroX());
         cv.put(COLUMN_GYRO_Y, motion.getGyroY());
         cv.put(COLUMN_GYRO_Z, motion.getGyroZ());
+
+        cv.put(COLUMN_CLASS, motion.getDrivingClass());
 
         long result = db.insert(MOTION_TABLE, null, cv);
 
@@ -105,10 +98,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 float gyro_Y = cursor.getFloat(5);
                 float gyro_Z = cursor.getFloat(6);
                 String sTimeStamp = cursor.getString(7);
+                int drivingClass = cursor.getInt(8);
 
                 Date timestamp = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(sTimeStamp);
 
-                Motion motion = new Motion(acc_X, acc_Y, acc_Z, gyro_X, gyro_Y, gyro_Z, timestamp);
+                Motion motion = new Motion(acc_X, acc_Y, acc_Z, gyro_X, gyro_Y, gyro_Z, drivingClass, timestamp);
                 returnList.add(motion);
             }while (cursor.moveToNext());
         }
@@ -131,52 +125,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //Execute sql query to remove from database
         //NOTE: When removing by String in SQL, value must be enclosed with ''
         database.execSQL("DELETE FROM " + MOTION_TABLE);
-
-        //Close the database
-        database.close();
-    }
-
-    public void SaveToken(String token){
-        SQLiteDatabase db = this.getWritableDatabase();
-
-        ContentValues cv = new ContentValues();
-        cv.put(COLUMN_TOKEN_VALUE, token);
-
-        long result = db.insert(TOKEN_TABLE, null, cv);
-
-        db.close();
-    }
-
-    public String GetToken()
-    {
-        String token = null;
-
-        String queryString = "SELECT* FROM " + TOKEN_TABLE;
-
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor cursor = db.rawQuery(queryString, null);
-
-        if(cursor.moveToFirst()) {
-            token = cursor.getString(1);
-        }
-        else {
-            // failure, we have nothing in the list
-        }
-
-        cursor.close();
-        db.close();
-
-        return token;
-    }
-
-    public void RemoveToken()
-    {
-        //Open the database
-        SQLiteDatabase database = this.getWritableDatabase();
-
-        //Execute sql query to remove from database
-        //NOTE: When removing by String in SQL, value must be enclosed with ''
-        database.execSQL("DELETE FROM " + TOKEN_TABLE);
 
         //Close the database
         database.close();

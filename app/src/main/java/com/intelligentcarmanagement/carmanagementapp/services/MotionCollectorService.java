@@ -4,7 +4,7 @@ import android.content.Context;
 import android.util.Log;
 
 import com.intelligentcarmanagement.carmanagementapp.database.DatabaseHelper;
-import com.intelligentcarmanagement.carmanagementapp.models.Motion;
+import com.intelligentcarmanagement.carmanagementapp.models.utils.Motion;
 
 import java.text.ParseException;
 import java.util.ArrayList;

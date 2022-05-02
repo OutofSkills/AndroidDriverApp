@@ -33,23 +33,15 @@ public class ExcelExporter {
         this.context = context;
     }
 
-    public void exportMotionData(List<String[]> motionData) {
+    public void exportMotionData(List<String[]> motionData, List<String> columns) {
         HSSFWorkbook hssfWorkbook = new HSSFWorkbook();
         HSSFSheet hssfSheet = hssfWorkbook.createSheet("Data Sheet");
 
         HSSFRow row0 = hssfSheet.createRow(0);
-        HSSFCell cell1 = row0.createCell(0);
-        cell1.setCellValue("Acceleration X");
-        HSSFCell cell2 = row0.createCell(1);
-        cell2.setCellValue("Acceleration Y");
-        HSSFCell cell3 = row0.createCell(2);
-        cell3.setCellValue("Acceleration Z");
-        HSSFCell cell4 = row0.createCell(3);
-        cell4.setCellValue("Gyro X");
-        HSSFCell cell5 = row0.createCell(4);
-        cell5.setCellValue("Gyro Y");
-        HSSFCell cell6 = row0.createCell(5);
-        cell6.setCellValue("Gyro Z");
+        for (int i = 0; i < columns.size(); i++) {
+            HSSFCell cell = row0.createCell(i);
+            cell.setCellValue(columns.get(i));
+        }
 
         for(int i = 0; i < motionData.size(); ++i)
         {

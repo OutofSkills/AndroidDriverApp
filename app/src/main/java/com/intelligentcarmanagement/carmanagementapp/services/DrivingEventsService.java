@@ -1,21 +1,16 @@
 package com.intelligentcarmanagement.carmanagementapp.services;
 
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
-
-import androidx.annotation.RequiresApi;
 
 import com.intelligentcarmanagement.carmanagementapp.database.DatabaseHelper;
 import com.intelligentcarmanagement.carmanagementapp.models.DrivingEvent;
-import com.intelligentcarmanagement.carmanagementapp.models.Motion;
+import com.intelligentcarmanagement.carmanagementapp.models.utils.Motion;
 
 import java.text.ParseException;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 public class DrivingEventsService {
     private DatabaseHelper dbHelper;

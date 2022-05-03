@@ -19,7 +19,7 @@ import java.util.List;
 public class DatabaseHelper extends SQLiteOpenHelper {
     // database details
     private static final String DB_NAME = "carmng.db";
-    private static final int DB_VERSION = 2;
+    private static final int DB_VERSION = 1;
 
     // Motion table details
     private static final String MOTION_TABLE = "Motion";
@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createMotionTable = "CREATE TABLE " + MOTION_TABLE + "("+ COLUMN_MOTION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_ACC_X + " REAL, " + COLUMN_ACC_Y + " REAL, " + COLUMN_ACC_Z + " REAL, " +
                 COLUMN_GYRO_X + " REAL, " + COLUMN_GYRO_Y + " REAL, " + COLUMN_GYRO_Z + " REAL, " +
-                COLUMN_TIME_STAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP, " + COLUMN_CLASS + " INTEGER )";
+                COLUMN_TIME_STAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP, " + COLUMN_CLASS + " TEXT )";
 
         db.execSQL(createMotionTable);
     }
@@ -98,7 +98,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 float gyro_Y = cursor.getFloat(5);
                 float gyro_Z = cursor.getFloat(6);
                 String sTimeStamp = cursor.getString(7);
-                int drivingClass = cursor.getInt(8);
+                String drivingClass = cursor.getString(8);
 
                 Date timestamp = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(sTimeStamp);
 

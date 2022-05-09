@@ -11,6 +11,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public class DrivingEventsService {
     private DatabaseHelper dbHelper;
@@ -38,10 +39,10 @@ public class DrivingEventsService {
         {
             float avgAccX = 0, avgAccY = 0, avgAccZ = 0;
             float avgGyroX = 0, avgGyroY = 0, avgGyroZ = 0;
-            Date startTime, endTime;
+            long currentTimestamp, lastTimestamp;
 
             //initial timestamp will be the first instance time
-            startTime = data.get(0).getTimestamp();
+            currentTimestamp = data.get(0).getTimestamp();
             for(int i = 0; i < data.size(); i++)
             {
                 Motion motion = data.get(i);
@@ -51,13 +52,13 @@ public class DrivingEventsService {
                 avgGyroX += motion.getGyroX();
                 avgGyroY += motion.getGyroY();
                 avgGyroZ += motion.getGyroZ();
-                endTime = motion.getTimestamp();
+                lastTimestamp = motion.getTimestamp();
 
                 // if the diffrence between firsta data instance and currenct data instance is 15s
                 // make the average and do the processing
                 // k is used to store the number of processed instances
                 int k = 0;
-                if((endTime.getTime()-startTime.getTime())/1000 >= interval)
+                if(currentTimestamp - lastTimestamp >= TimeUnit.SECONDS.toNanos(interval))
                 {
                     //processing data
                     DrivingEvent event  = motionProcessorService.doInference(new float[]{avgAccX/(i-k), avgAccY/(i-k), avgAccZ/(i-k),
@@ -71,7 +72,7 @@ public class DrivingEventsService {
                     drivingEvents.add(event);
 
                     k = i;
-                    startTime = endTime;
+                    currentTimestamp = lastTimestamp;
                 }
             }
         }

@@ -3,18 +3,29 @@ package com.intelligentcarmanagement.carmanagementapp.models.login;
 import com.google.gson.annotations.SerializedName;
 
 public class LoginResponse {
-    @SerializedName("token")
-    private String token;
+    @SerializedName("jwtToken")
+    private String jwtToken;
+    @SerializedName("firebaseToken")
+    private String firebaseToken;
 
-    public LoginResponse(String token) {
-        this.token = token;
+    public LoginResponse(String jwtToken, String firebaseToken) {
+        this.jwtToken = jwtToken;
+        this.firebaseToken = firebaseToken;
     }
 
-    public String getToken() {
-        return token;
+    public String getFirebaseToken() {
+        return firebaseToken;
     }
 
-    public void setToken(String token) {
-        this.token = token;
+    public void setFirebaseToken(String firebaseToken) {
+        this.firebaseToken = firebaseToken;
+    }
+
+    public String getJwtToken() {
+        return jwtToken;
+    }
+
+    public void setJwtToken(String jwtToken) {
+        this.jwtToken = jwtToken;
     }
 }

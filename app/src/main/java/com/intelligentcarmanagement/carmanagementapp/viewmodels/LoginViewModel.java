@@ -24,6 +24,7 @@ import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
 import java.util.Map;
 
 public class LoginViewModel extends AndroidViewModel {
+    private static final String TAG = "LoginViewModel";
     MutableLiveData<LoginState> mLoginStateMutableData = new MutableLiveData<>();
     MutableLiveData<String> mLoginErrorMutableData = new MutableLiveData<>();
 
@@ -49,7 +50,7 @@ public class LoginViewModel extends AndroidViewModel {
             @Override
             public void onResponse(LoginResponse loginResponse) {
                 try {
-                    String token = loginResponse.getToken();
+                    String token = loginResponse.getJwtToken();
                     if(token == null) {
                         mLoginStateMutableData.setValue(LoginState.ERROR);
                         mLoginErrorMutableData.postValue("Server error. Please try again.");

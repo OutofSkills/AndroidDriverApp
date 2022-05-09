@@ -43,7 +43,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String createMotionTable = "CREATE TABLE " + MOTION_TABLE + "("+ COLUMN_MOTION_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_ACC_X + " REAL, " + COLUMN_ACC_Y + " REAL, " + COLUMN_ACC_Z + " REAL, " +
                 COLUMN_GYRO_X + " REAL, " + COLUMN_GYRO_Y + " REAL, " + COLUMN_GYRO_Z + " REAL, " +
-                COLUMN_TIME_STAMP + " DATETIME DEFAULT CURRENT_TIMESTAMP, " + COLUMN_CLASS + " TEXT )";
+                COLUMN_TIME_STAMP + " INTEGER, " + COLUMN_CLASS + " TEXT )";
 
         db.execSQL(createMotionTable);
     }
@@ -97,10 +97,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 float gyro_X = cursor.getFloat(4);
                 float gyro_Y = cursor.getFloat(5);
                 float gyro_Z = cursor.getFloat(6);
-                String sTimeStamp = cursor.getString(7);
+                long timestamp = cursor.getLong(7);
                 String drivingClass = cursor.getString(8);
-
-                Date timestamp = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(sTimeStamp);
 
                 Motion motion = new Motion(acc_X, acc_Y, acc_Z, gyro_X, gyro_Y, gyro_Z, drivingClass, timestamp);
                 returnList.add(motion);

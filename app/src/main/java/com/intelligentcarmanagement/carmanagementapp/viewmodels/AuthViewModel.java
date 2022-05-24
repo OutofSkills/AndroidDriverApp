@@ -22,7 +22,7 @@ public class AuthViewModel extends AndroidViewModel {
     // Return true if the user token is valid
     // and false if it is null or expired
     public boolean IsAuthenticated() {
-        String token = sessionManager.getUserData().get(sessionManager.KEY_TOKEN);
+        String token = sessionManager.getUserData().get(SessionManager.KEY_JWT_TOKEN);
         if (token == null)
             return false;
 

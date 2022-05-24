@@ -1,6 +1,5 @@
 package com.intelligentcarmanagement.carmanagementapp.activities;
 
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -8,22 +7,17 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import com.intelligentcarmanagement.carmanagementapp.R;
-import com.intelligentcarmanagement.carmanagementapp.activities.DrawerBaseActivity;
 import com.intelligentcarmanagement.carmanagementapp.adapters.DashboardRecyclerViewAdapter;
-import com.intelligentcarmanagement.carmanagementapp.adapters.HistoryRecyclerViewAdapter;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityDashboardBinding;
 import com.intelligentcarmanagement.carmanagementapp.models.Notification;
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.zip.Inflater;
 
 public class DashboardActivity extends DrawerBaseActivity {
 

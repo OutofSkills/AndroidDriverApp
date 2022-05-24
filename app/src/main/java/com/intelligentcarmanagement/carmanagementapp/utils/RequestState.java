@@ -1,6 +1,6 @@
 package com.intelligentcarmanagement.carmanagementapp.utils;
 
-public enum LoginState {
+public enum RequestState {
     ERROR,
     SUCCESS,
     START

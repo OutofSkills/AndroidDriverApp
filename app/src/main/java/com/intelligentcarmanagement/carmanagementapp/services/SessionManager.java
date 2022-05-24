@@ -17,7 +17,8 @@ public class SessionManager {
     public static final String KEY_EMAIL = "email";
     public static final String KEY_AVATAR = "avatar";
     public static final String KEY_AVAILABILITY = "availability";
-    public static final String KEY_TOKEN = "token";
+    public static final String KEY_JWT_TOKEN = "jwt_token";
+    public static final String KEY_FIREBASE_TOKEN = "firebase_token";
 
     public SessionManager(Context context)
     {
@@ -30,7 +31,14 @@ public class SessionManager {
     {
         editor.putString(KEY_ID, id);
         editor.putString(KEY_EMAIL, email);
-        editor.putString(KEY_TOKEN, token);
+        editor.putString(KEY_JWT_TOKEN, token);
+
+        editor.commit();
+    }
+
+    public void addFirebaseToken(String token)
+    {
+        editor.putString(KEY_FIREBASE_TOKEN, token);
 
         editor.commit();
     }
@@ -54,7 +62,8 @@ public class SessionManager {
 
         userData.put(KEY_ID, userSession.getString(KEY_ID, null));
         userData.put(KEY_EMAIL, userSession.getString(KEY_EMAIL, null));
-        userData.put(KEY_TOKEN, userSession.getString(KEY_TOKEN, null));
+        userData.put(KEY_JWT_TOKEN, userSession.getString(KEY_JWT_TOKEN, null));
+        userData.put(KEY_FIREBASE_TOKEN, userSession.getString(KEY_FIREBASE_TOKEN, null));
         userData.put(KEY_AVATAR, userSession.getString(KEY_AVATAR, null));
         userData.put(KEY_AVAILABILITY, Boolean.toString(userSession.getBoolean(KEY_AVAILABILITY, false)));
 

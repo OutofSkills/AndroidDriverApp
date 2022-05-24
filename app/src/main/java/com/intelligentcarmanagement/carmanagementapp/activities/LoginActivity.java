@@ -10,9 +10,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -21,7 +19,7 @@ import com.google.android.material.textfield.TextInputEditText;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.intelligentcarmanagement.carmanagementapp.R;
-import com.intelligentcarmanagement.carmanagementapp.utils.LoginState;
+import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 import com.intelligentcarmanagement.carmanagementapp.utils.ValidationTextWatcher;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.LoginViewModel;
 
@@ -98,9 +96,9 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        mViewModel.getLoginState().observe(this, new Observer<LoginState>() {
+        mViewModel.getLoginState().observe(this, new Observer<RequestState>() {
             @Override
-            public void onChanged(LoginState state) {
+            public void onChanged(RequestState state) {
                 Log.d(TAG, "Login state: " + state);
                 switch (state) {
                     case START:

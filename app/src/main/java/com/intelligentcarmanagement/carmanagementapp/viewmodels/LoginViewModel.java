@@ -18,14 +18,14 @@ import com.intelligentcarmanagement.carmanagementapp.repositories.UsersRepo;
 import com.intelligentcarmanagement.carmanagementapp.api.login.ILoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.api.users.IGetUserResponse;
 import com.intelligentcarmanagement.carmanagementapp.utils.JwtParser;
-import com.intelligentcarmanagement.carmanagementapp.utils.LoginState;
+import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
 
 import java.util.Map;
 
 public class LoginViewModel extends AndroidViewModel {
     private static final String TAG = "LoginViewModel";
-    MutableLiveData<LoginState> mLoginStateMutableData = new MutableLiveData<>();
+    MutableLiveData<RequestState> mLoginStateMutableData = new MutableLiveData<>();
     MutableLiveData<String> mLoginErrorMutableData = new MutableLiveData<>();
 
     SessionManager sessionManager;
@@ -41,7 +41,7 @@ public class LoginViewModel extends AndroidViewModel {
 
     public void login(String email, String password)
     {
-        mLoginStateMutableData.setValue(LoginState.START);
+        mLoginStateMutableData.setValue(RequestState.START);
         Log.d("ViewModel", "Login State: " + mLoginStateMutableData.getValue());
 
         // Make a login request to the API to obtain a token
@@ -52,7 +52,7 @@ public class LoginViewModel extends AndroidViewModel {
                 try {
                     String token = loginResponse.getJwtToken();
                     if(token == null) {
-                        mLoginStateMutableData.setValue(LoginState.ERROR);
+                        mLoginStateMutableData.setValue(RequestState.ERROR);
                         mLoginErrorMutableData.postValue("Server error. Please try again.");
                     }
 
@@ -66,26 +66,26 @@ public class LoginViewModel extends AndroidViewModel {
                     fetchUser(claims.get("email").toString());
                 } catch (Exception e) {
                     mLoginErrorMutableData.postValue("Server error: " + e.getMessage());
-                    mLoginStateMutableData.setValue(LoginState.ERROR);
+                    mLoginStateMutableData.setValue(RequestState.ERROR);
                     e.printStackTrace();
                 }
             }
 
             @Override
             public void onFailure(Throwable t) {
-                mLoginStateMutableData.setValue(LoginState.ERROR);
+                mLoginStateMutableData.setValue(RequestState.ERROR);
                 mLoginErrorMutableData.postValue("Server error: " + t.getMessage());
             }
 
             @Override
             public void onServerValidationFailure(ServerValidationError errorValidationResponse) {
-                mLoginStateMutableData.setValue(LoginState.ERROR);
+                mLoginStateMutableData.setValue(RequestState.ERROR);
                 mLoginErrorMutableData.postValue("Server error: " + errorValidationResponse.getErrors().values());
             }
 
             @Override
             public void onServerFailure(ServerErrorResponse serverErrorResponse) {
-                mLoginStateMutableData.setValue(LoginState.ERROR);
+                mLoginStateMutableData.setValue(RequestState.ERROR);
                 mLoginErrorMutableData.postValue("Server error: " + serverErrorResponse.getMessage());
             }
         });
@@ -98,19 +98,19 @@ public class LoginViewModel extends AndroidViewModel {
             public void onResponse(User userResponse) {
                 sessionManager.addUserAvatar(userResponse.getAvatar());
                 sessionManager.changeAvailability(userResponse.isAvailable());
-                mLoginStateMutableData.setValue(LoginState.SUCCESS);
+                mLoginStateMutableData.setValue(RequestState.SUCCESS);
             }
 
             @Override
             public void onFailure(Throwable t) {
                 Log.d("LoginViewModel", "Response user: " + t.getMessage());
-                mLoginStateMutableData.setValue(LoginState.ERROR);
+                mLoginStateMutableData.setValue(RequestState.ERROR);
                 mLoginErrorMutableData.postValue("Server error: " + t.getMessage());
             }
         });
     }
 
-    public LiveData<LoginState> getLoginState()
+    public LiveData<RequestState> getLoginState()
     {
         return mLoginStateMutableData;
     }

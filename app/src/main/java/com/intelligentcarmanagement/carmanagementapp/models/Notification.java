@@ -1,51 +1,57 @@
 package com.intelligentcarmanagement.carmanagementapp.models;
 
-import android.graphics.Bitmap;
-
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 public class Notification {
-    private String name;
-    private String description;
-    private Date date;
-    private Bitmap icon;
+    private String title;
+    private String body;
+    private String dateTime;
 
-    public Notification(String name, String description, Date date, Bitmap icon) {
-        this.name = name;
-        this.description = description;
-        this.date = date;
-        this.icon = icon;
+    private NotificationCategory notificationCategory;
+
+    public Notification(String title, String body, String dateTime, NotificationCategory notificationCategory) {
+        this.title = title;
+        this.body = body;
+        this.dateTime = dateTime;
+        this.notificationCategory = notificationCategory;
     }
 
-    public String getName() {
-        return name;
+    public String getTitle() {
+        return title;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public String getDescription() {
-        return description;
+    public String getBody() {
+        return body;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setBody(String body) {
+        this.body = body;
     }
 
-    public Date getDate() {
-        return date;
+    public Date getDateTime() {
+        try {
+            return new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS", Locale.ENGLISH).parse(dateTime);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
-    public void setDate(Date date) {
-        this.date = date;
+    public void setDateTime(String dateTime) {
+        this.dateTime = dateTime;
     }
 
-    public Bitmap getIcon() {
-        return icon;
+    public NotificationCategory getNotificationCategory() {
+        return notificationCategory;
     }
 
-    public void setIcon(Bitmap icon) {
-        this.icon = icon;
+    public void setNotificationCategory(NotificationCategory notificationCategory) {
+        this.notificationCategory = notificationCategory;
     }
 }

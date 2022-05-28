@@ -1,6 +1,7 @@
 package com.intelligentcarmanagement.carmanagementapp.adapters;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,6 @@ import org.ocpsoft.prettytime.PrettyTime;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.models.Notification;
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -38,13 +38,13 @@ public class DashboardRecyclerViewAdapter extends RecyclerView.Adapter<Dashboard
 
     @Override
     public void onBindViewHolder(@NonNull DashboardRecyclerViewAdapter.ViewHolder holder, int position) {
-        holder.notificationIcon.setImageBitmap(mNotifications.get(position).getIcon());
-        holder.notificationName.setText(mNotifications.get(position).getName());
-        holder.notificationDescription.setText(mNotifications.get(position).getDescription());
+        holder.notificationIcon.setImageDrawable(getDrawable(mNotifications.get(position).getNotificationCategory().getIcon()));
+        holder.notificationName.setText(mNotifications.get(position).getTitle());
+        holder.notificationDescription.setText(mNotifications.get(position).getBody());
 
         PrettyTime p = new PrettyTime();
         p.setLocale(Locale.ENGLISH);
-        holder.notificationTimeAgo.setText(p.format(mNotifications.get(position).getDate()));
+        holder.notificationTimeAgo.setText(p.format(mNotifications.get(position).getDateTime()));
     }
 
     @Override
@@ -65,5 +65,10 @@ public class DashboardRecyclerViewAdapter extends RecyclerView.Adapter<Dashboard
             notificationTimeAgo = itemView.findViewById(R.id.notification_item_time_ago);
             parentLayout = itemView.findViewById(R.id.historyItemParentLayout);
         }
+    }
+
+    public Drawable getDrawable(String name) {
+        int resourceId = mContext.getResources().getIdentifier(name, "drawable", mContext.getPackageName());
+        return mContext.getDrawable(resourceId);
     }
 }

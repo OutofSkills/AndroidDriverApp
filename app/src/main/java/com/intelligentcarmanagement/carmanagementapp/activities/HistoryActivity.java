@@ -4,6 +4,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.os.Bundle;
 import android.util.Log;
@@ -25,6 +26,7 @@ public class HistoryActivity extends DrawerBaseActivity {
     private static final String TAG = "HistoryActivity";
     ActivityHistoryBinding activityHistoryBinding;
 
+    private SwipeRefreshLayout refreshLayout;
     // History recycler view
     RecyclerView recyclerView;
     HistoryRecyclerViewAdapter adapter;
@@ -39,8 +41,8 @@ public class HistoryActivity extends DrawerBaseActivity {
         setContentView(activityHistoryBinding.getRoot());
         allocateActivityTitle("History");
 
+        refreshLayout = findViewById(R.id.history_refresh_layout);
         recyclerView = findViewById(R.id.historyRecyclerView);
-
         mProgressIndicator = findViewById(R.id.history_progress_indicator);
 
         mHistoryViewModel = new ViewModelProvider(this).get(HistoryViewModel.class);
@@ -59,7 +61,6 @@ public class HistoryActivity extends DrawerBaseActivity {
         });
 
         mHistoryViewModel.getProcessingState().observe(HistoryActivity.this, new Observer<RequestState>() {
-
             @Override
             public void onChanged(RequestState state) {
                 switch (state){
@@ -74,6 +75,14 @@ public class HistoryActivity extends DrawerBaseActivity {
                         mProgressIndicator.setVisibility(View.VISIBLE);
                         break;
                 }
+            }
+        });
+
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshLayout.setRefreshing(false);
+                mHistoryViewModel.getHistory();
             }
         });
     }

@@ -3,12 +3,16 @@ package com.intelligentcarmanagement.carmanagementapp.viewmodels;
 import android.app.Application;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.gson.Gson;
-import com.intelligentcarmanagement.carmanagementapp.database.DatabaseHelper;
+import com.intelligentcarmanagement.carmanagementapp.api.notifications.responses.IUpdateToken;
 import com.intelligentcarmanagement.carmanagementapp.models.login.LoginRequest;
 import com.intelligentcarmanagement.carmanagementapp.models.login.LoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.models.User;
@@ -17,26 +21,28 @@ import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerValidat
 import com.intelligentcarmanagement.carmanagementapp.repositories.UsersRepo;
 import com.intelligentcarmanagement.carmanagementapp.api.login.ILoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.api.users.IGetUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.INotificationsRepository;
+import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.NotificationsRepository;
 import com.intelligentcarmanagement.carmanagementapp.utils.JwtParser;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class LoginViewModel extends AndroidViewModel {
     private static final String TAG = "LoginViewModel";
-    MutableLiveData<RequestState> mLoginStateMutableData = new MutableLiveData<>();
-    MutableLiveData<String> mLoginErrorMutableData = new MutableLiveData<>();
+    private MutableLiveData<RequestState> mLoginStateMutableData = new MutableLiveData<>();
+    private MutableLiveData<String> mLoginErrorMutableData = new MutableLiveData<>();
 
-    SessionManager sessionManager;
-    UsersRepo mUsersRepository;
-    DatabaseHelper dbHelper;
+    private SessionManager mSessionManager;
+    private UsersRepo mUsersRepository;
+    private INotificationsRepository mNotificationsRepository;
 
     public LoginViewModel(Application context) {
         super(context);
         mUsersRepository = new UsersRepo();
-        dbHelper = new DatabaseHelper(context);
-        sessionManager = new SessionManager(context);
+        mSessionManager = new SessionManager(context);
     }
 
     public void login(String email, String password)
@@ -61,7 +67,9 @@ public class LoginViewModel extends AndroidViewModel {
                     Map<Object, Object> claims = decodeTokenClaims(payload);
 
                     // Create a session
-                    sessionManager.createLoginSession(claims.get("id").toString(), claims.get("email").toString(), token);
+                    mSessionManager.createLoginSession(claims.get("id").toString(), claims.get("email").toString(), token);
+                    // Update the firebase token
+                    checkUpdateFirebaseToken(loginResponse.getFirebaseToken());
                     // Fetch the user to retrieve additional data
                     fetchUser(claims.get("email").toString());
                 } catch (Exception e) {
@@ -96,8 +104,8 @@ public class LoginViewModel extends AndroidViewModel {
         mUsersRepository.getUserByEmail(email, new IGetUserResponse() {
             @Override
             public void onResponse(User userResponse) {
-                sessionManager.addUserAvatar(userResponse.getAvatar());
-                sessionManager.changeAvailability(userResponse.isAvailable());
+                mSessionManager.addUserAvatar(userResponse.getAvatar());
+                mSessionManager.changeAvailability(userResponse.isAvailable());
                 mLoginStateMutableData.setValue(RequestState.SUCCESS);
             }
 
@@ -108,6 +116,52 @@ public class LoginViewModel extends AndroidViewModel {
                 mLoginErrorMutableData.postValue("Server error: " + t.getMessage());
             }
         });
+    }
+
+    public void checkUpdateFirebaseToken(String serverFirebaseToken)
+    {
+        // Get the device's notifications token
+        FirebaseMessaging.getInstance().getToken()
+                .addOnCompleteListener(new OnCompleteListener<String>() {
+                    @Override
+                    public void onComplete(@NonNull Task<String> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
+                            return;
+                        }
+
+                        // Get new FCM registration token
+                        String localFirebaseToken = task.getResult();
+
+                        if(localFirebaseToken == serverFirebaseToken) {
+                            Log.d(TAG, "Firebase token didn't change");
+                            return;
+                        }
+
+                        HashMap<String, String> userData = mSessionManager.getUserData();
+
+                        try{
+                            String userId = userData.get(SessionManager.KEY_ID);
+                            String jwtToken = userData.get(SessionManager.KEY_JWT_TOKEN);
+
+                            mNotificationsRepository = new NotificationsRepository();
+                            mNotificationsRepository.updateToken(jwtToken, userId, localFirebaseToken, new IUpdateToken() {
+                                @Override
+                                public void onFailure(Throwable throwable) {
+                                    Log.d(TAG, "checkUpdateFirebaseToken exception: Failed to update firebase token of user with id " + userId + " " +throwable.getMessage());
+                                }
+
+                                @Override
+                                public void onResponse(String newFirebaseToken) {
+                                    Log.d(TAG, "checkUpdateFirebaseToken success: Successfully updated firebase token of user with id " + userId);
+                                }
+                            });
+                        }catch (Exception e) {
+                            Log.d(TAG, "onNewToken exception: " + e.getMessage());
+                        }
+
+                    }
+                });
     }
 
     public LiveData<RequestState> getLoginState()

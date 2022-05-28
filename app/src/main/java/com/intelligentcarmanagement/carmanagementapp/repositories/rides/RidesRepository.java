@@ -4,6 +4,7 @@ import android.util.Log;
 
 import com.intelligentcarmanagement.carmanagementapp.api.RetrofitService;
 import com.intelligentcarmanagement.carmanagementapp.api.rides.IRidesRequests;
+import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetOngoingRide;
 import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetRidesHistory;
 import com.intelligentcarmanagement.carmanagementapp.models.Ride;
 
@@ -40,6 +41,33 @@ public class RidesRepository implements IRidesRepository{
             @Override
             public void onFailure(Call<ArrayList<Ride>> call, Throwable t) {
                 getRidesHistory.onFailure(t);
+            }
+        });
+    }
+
+    @Override
+    public void getOngoingRide(String token, int userId, IGetOngoingRide getOngoingRide) {
+        IRidesRequests ridesRequest = RetrofitService.getRetrofit().create(IRidesRequests.class);
+        Call<Ride> initRequest = ridesRequest.getOngoingRide(token, userId);
+
+        initRequest.enqueue(new Callback<Ride>() {
+            @Override
+            public void onResponse(Call<Ride> call, Response<Ride> response) {
+                if(response.isSuccessful())
+                    getOngoingRide.onResponse(response.body());
+                else {
+                    try {
+                        getOngoingRide.onFailure(new Throwable(response.errorBody().string()));
+                    } catch (IOException e) {
+                        Log.d(TAG, "onResponse: ");
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Ride> call, Throwable t) {
+                getOngoingRide.onFailure(t);
             }
         });
     }

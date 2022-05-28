@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/dashboard_refresh_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".activities.DashboardActivity"
@@ -133,194 +134,237 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/dashboardOngoingRide"
+        <RelativeLayout
+            android:id="@id/dashboard_ongoing_ride_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/dashboardGeneralDataCard"
-            android:layout_margin="10dp"
-            app:cardElevation="1dp">
+            android:layout_below="@id/dashboardGeneralDataCard">
 
-            <LinearLayout
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/dashboard_no_ongoing_ride"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="100dp"
                 android:layout_margin="10dp"
-                android:orientation="vertical">
+                app:cardElevation="1dp"
+                android:visibility="visible">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:weightSum="100">
+                    android:layout_weight="90"
+                    android:text="Ongoing Ride"
+                    android:textSize="16dp"
+                    android:textColor="@color/dark_grey"
+                    />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="90"
-                        android:text="Ongoing Ride"
-                        android:textSize="16dp"
-                        android:textColor="@color/dark_grey"
-                        />
+                        android:text="No available ride at the moment."/>
 
-                    <ImageButton
-                        android:layout_width="5dp"
-                        android:layout_height="30dp"
-                        android:layout_weight="10"
-                        android:src="@drawable/ic_baseline_more_vert_24"
-                        style="@style/Widget.MaterialComponents.Button.TextButton"/>
+                </RelativeLayout>
+            </com.google.android.material.card.MaterialCardView>
 
-                </LinearLayout>
+            <com.google.android.material.card.MaterialCardView
+                android:id="@+id/dashboard_ongoing_ride"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                app:cardElevation="1dp"
+                android:visibility="gone">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:orientation="horizontal"
-                    android:weightSum="100">
-
-                    <androidx.cardview.widget.CardView
-                        android:id="@+id/myCardView"
-                        android:layout_width="50dp"
-                        android:layout_height="50dp"
-                        app:cardCornerRadius="50dp"
-                        android:layout_centerHorizontal="true"
-                        android:layout_centerVertical="true"
-                        android:background="@drawable/circle">
-
-                        <com.google.android.material.imageview.ShapeableImageView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="10"
-                            android:src="@drawable/profile_pic"
-                            android:scaleType="centerCrop"
-                        />
-                    </androidx.cardview.widget.CardView>
+                    android:layout_margin="10dp"
+                    android:orientation="vertical">
 
                     <LinearLayout
-                        android:layout_width="wrap_content"
+                        android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:layout_weight="90"
-                        android:orientation="vertical">
+                        android:orientation="horizontal"
+                        android:weightSum="100">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="kojocaru.ivan@gmail.com"
-                            android:textSize="14dp"
-                            android:textStyle="bold"
-                            android:textColor="@color/black" />
+                            android:layout_weight="90"
+                            android:text="Ongoing Ride"
+                            android:textSize="16dp"
+                            android:textColor="@color/dark_grey"
+                            />
+
+                        <ImageButton
+                            android:layout_width="5dp"
+                            android:layout_height="30dp"
+                            android:layout_weight="10"
+                            android:src="@drawable/ic_baseline_more_vert_24"
+                            style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:orientation="horizontal"
+                        android:weightSum="100">
+
+                        <androidx.cardview.widget.CardView
+                            android:id="@+id/myCardView"
+                            android:layout_width="50dp"
+                            android:layout_height="50dp"
+                            app:cardCornerRadius="50dp"
+                            android:layout_centerHorizontal="true"
+                            android:layout_centerVertical="true"
+                            android:background="@drawable/circle">
+
+                            <com.google.android.material.imageview.ShapeableImageView
+                                android:id="@+id/ongoing_ride_client_avatar"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_weight="10"
+                                android:src="@drawable/profile_pic"
+                                android:scaleType="centerCrop"
+                                />
+                        </androidx.cardview.widget.CardView>
 
                         <LinearLayout
-                            android:layout_width="match_parent"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:orientation="horizontal">
-                            <ImageView
-                                android:layout_width="wrap_content"
-                                android:layout_height="wrap_content"
-                                android:src="@drawable/ic_baseline_star_rate_24"
-                                app:tint="@color/colorSecondary"/>
+                            android:layout_marginLeft="10dp"
+                            android:layout_weight="90"
+                            android:orientation="vertical">
 
                             <TextView
+                                android:id="@+id/ongoing_ride_client_username"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
-                                android:layout_marginTop="4dp"
-                                android:layout_marginLeft="5dp"
-                                android:text="4.9"
+                                android:text="kojocaru.ivan@gmail.com"
                                 android:textSize="14dp"
+                                android:textStyle="bold"
                                 android:textColor="@color/black" />
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:orientation="horizontal">
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:src="@drawable/ic_baseline_star_rate_24"
+                                    app:tint="@color/colorSecondary"/>
+
+                                <TextView
+                                    android:id="@+id/ongoing_ride_client_rating"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginTop="4dp"
+                                    android:layout_marginLeft="5dp"
+                                    android:text="4.9"
+                                    android:textSize="14dp"
+                                    android:textColor="@color/black" />
+                            </LinearLayout>
+
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@color/dark_grey"/>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:weightSum="90"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_weight="30">
+
+                            <Button
+                                android:id="@+id/ongoing_ride_contact_phone_number"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Call"
+                                android:textSize="12dp"
+                                android:textAllCaps="false"
+                                android:textColor="@color/black"
+                                android:drawableLeft="@drawable/ic_baseline_call_24"
+                                android:drawableTint="@color/colorAccent"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_weight="30">
+
+                            <Button
+                                android:id="@+id/ongoing_ride_contact_chat"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Chat"
+                                android:textSize="12dp"
+                                android:textAllCaps="false"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:drawableLeft="@drawable/ic_baseline_chat_24"
+                                android:drawableTint="@color/colorAccent"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:layout_weight="30">
+
+                            <Button
+                                android:id="@+id/dashboard_navigate_to_button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Navigation"
+                                android:textSize="12dp"
+                                android:textAllCaps="false"
+                                android:textStyle="bold"
+                                android:textColor="@color/black"
+                                android:drawableLeft="@drawable/ic_baseline_navigation_24"
+                                android:drawableTint="@color/colorAccent"
+                                style="@style/Widget.MaterialComponents.Button.TextButton"/>
+
                         </LinearLayout>
 
                     </LinearLayout>
 
                 </LinearLayout>
 
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:background="@color/dark_grey"/>
+            </com.google.android.material.card.MaterialCardView>
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:weightSum="90"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_weight="30">
-
-                        <Button
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Call"
-                            android:textSize="12dp"
-                            android:textAllCaps="false"
-                            android:textColor="@color/black"
-                            android:drawableLeft="@drawable/ic_baseline_call_24"
-                            android:drawableTint="@color/colorAccent"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_weight="30">
-
-                        <Button
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Chat"
-                            android:textSize="12dp"
-                            android:textAllCaps="false"
-                            android:textStyle="bold"
-                            android:textColor="@color/black"
-                            android:drawableLeft="@drawable/ic_baseline_chat_24"
-                            android:drawableTint="@color/colorAccent"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"/>
-
-                    </LinearLayout>
-
-                    <LinearLayout
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:layout_weight="30">
-
-                        <Button
-                            android:id="@+id/dashboard_navigate_to_button"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Navigation"
-                            android:textSize="12dp"
-                            android:textAllCaps="false"
-                            android:textStyle="bold"
-                            android:textColor="@color/black"
-                            android:drawableLeft="@drawable/ic_baseline_navigation_24"
-                            android:drawableTint="@color/colorAccent"
-                            style="@style/Widget.MaterialComponents.Button.TextButton"/>
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
+        </RelativeLayout>
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/dashboardOngoingRide"
+            android:layout_below="@+id/dashboard_ongoing_ride_layout"
             android:layout_margin="10dp"
             android:layout_alignParentBottom="true"
             android:orientation="vertical">
@@ -339,18 +383,27 @@
                 android:layout_height="match_parent"
                 app:cardElevation="1dp">
 
-                <LinearLayout
+                <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="10dp"
                     android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/dashboard_no_available_notifications_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerInParent="true"
+                        android:text="No available notifications."
+                        android:visibility="gone"
+                        />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/notifications_recycler_view"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"/>
 
-                </LinearLayout>
+                </RelativeLayout>
 
             </com.google.android.material.card.MaterialCardView>
 
@@ -358,4 +411,4 @@
 
     </RelativeLayout>
 
-</RelativeLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

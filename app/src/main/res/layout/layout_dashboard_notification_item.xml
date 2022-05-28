@@ -13,19 +13,18 @@
 
         <androidx.cardview.widget.CardView xmlns:app="http://schemas.android.com/apk/res-auto"
             android:id="@+id/myCardView"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
             app:cardCornerRadius="50dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:background="@drawable/circle">
+            android:layout_width="50dp"
+            android:layout_height="50dp">
 
             <com.google.android.material.imageview.ShapeableImageView
                 android:id="@+id/notification_item_image"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="10"
-                android:src="@drawable/profile_pic"
+                android:layout_gravity="center"
+                android:tint="@color/colorPrimary"
+                android:src="@drawable/ic_outline_directions_car_24"
                 android:scaleType="centerCrop"
                 />
         </androidx.cardview.widget.CardView>
@@ -42,7 +41,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Some notification text..."
-                android:textSize="16dp"
+                android:textSize="14dp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textStyle="bold"
                 android:textColor="@color/black" />
 
@@ -52,7 +53,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="Some notification description"
-                android:textSize="14dp"
+                android:textSize="13dp"
+                android:ellipsize="end"
+                android:maxLines="1"
                 android:textColor="@color/dark_grey" />
 
         </LinearLayout>

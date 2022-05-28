@@ -12,4 +12,7 @@ import retrofit2.http.Query;
 public interface IRidesRequests {
     @GET("/api/Rides/driver")
     Call<ArrayList<Ride>> getRides(@Header("authorization") String token, @Query("id") int userId);
+
+    @GET("/api/Rides/ongoing")
+    Call<Ride> getOngoingRide(@Header("authorization") String token, @Query("id") int userId);
 }

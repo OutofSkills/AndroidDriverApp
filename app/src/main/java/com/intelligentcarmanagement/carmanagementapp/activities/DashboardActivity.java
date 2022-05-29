@@ -8,7 +8,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,12 +16,14 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.imageview.ShapeableImageView;
+import com.google.android.material.snackbar.Snackbar;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.adapters.DashboardRecyclerViewAdapter;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityDashboardBinding;
-import com.intelligentcarmanagement.carmanagementapp.models.Client;
 import com.intelligentcarmanagement.carmanagementapp.models.Notification;
 import com.intelligentcarmanagement.carmanagementapp.models.Ride;
 import com.intelligentcarmanagement.carmanagementapp.utils.ImageConverter;
@@ -30,8 +31,6 @@ import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.DashboardViewModel;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 public class DashboardActivity extends DrawerBaseActivity {
 
@@ -98,13 +97,6 @@ public class DashboardActivity extends DrawerBaseActivity {
 
     private void setEventListeners()
     {
-        navigateToButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                goToOngoingRide();
-            }
-        });
-
         /* Set ongoing ride */
         mViewModel.getRide().observe(DashboardActivity.this, new Observer<Ride>() {
             @Override
@@ -123,7 +115,7 @@ public class DashboardActivity extends DrawerBaseActivity {
                     // TODO: set rating
                     clientRating.setText("0.0");
 
-                    setRideActionButtons(ride.getClient());
+                    setRideActionButtons(ride);
                 }
                 else
                 {
@@ -140,6 +132,13 @@ public class DashboardActivity extends DrawerBaseActivity {
                 switch (requestState)
                 {
                     case ERROR:
+                        Snackbar.make(swipeRefreshLayout, "Couldn't connect to the server.", Snackbar.LENGTH_LONG)
+                                .setAction(R.string.try_again, new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        fetchDashboardData();
+                                    }
+                                }).show();
                     case SUCCESS:
                         isFetchingRide = false;
                         if(!isFetchingNotifications)
@@ -189,18 +188,22 @@ public class DashboardActivity extends DrawerBaseActivity {
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                mViewModel.fetchOngoingRide();
-                mViewModel.fetchNotifications();
+                fetchDashboardData();
             }
         });
     }
 
-    private void setRideActionButtons(Client client) {
+    private void fetchDashboardData() {
+        mViewModel.fetchOngoingRide();
+        mViewModel.fetchNotifications();
+    }
+
+    private void setRideActionButtons(Ride ride) {
         contactPhoneNumberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:" + client.getPhoneNumber()));
+                intent.setData(Uri.parse("tel:" + ride.getClient().getPhoneNumber()));
                 startActivity(intent);
             }
         });
@@ -211,11 +214,43 @@ public class DashboardActivity extends DrawerBaseActivity {
                 Toast.makeText(DashboardActivity.this, "Not implemented", Toast.LENGTH_SHORT).show();
             }
         });
+
+        navigateToButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goToOngoingRide(ride);
+            }
+        });
     }
 
-    private void goToOngoingRide()
+    private void goToOngoingRide(Ride ride)
     {
-        Intent intent = new Intent(DashboardActivity.this, MapsActivity.class);
+        Intent intent = new Intent(DashboardActivity.this, NavigationActivity.class);
+
+        /*
+        * Put extra ride details like
+        * pick-up location, destination, client name..
+        */
+
+        LatLng pickUp = new LatLng(Double.valueOf(ride.getPickUpLat()), Double.valueOf(ride.getPickUpPlaceLong()));
+        String pickUpPlaceName = ride.getPickUpPlaceName();
+        String pickUpPlaceAddress = ride.getPickUpPlaceAddress();
+
+        LatLng destination = new LatLng(Double.valueOf(ride.getDestinationPlaceLat()), Double.valueOf(ride.getDestinationPlaceLong()));
+        String destinationPlaceName = ride.getDestinationPlaceName();
+        String destinationPlaceAddress = ride.getDestinationPlaceAddress();
+
+        String clientName = ride.getClient().getFirstName() + " " + ride.getClient().getLastName();
+
+        intent.putExtra("pickUp", pickUp);
+        intent.putExtra("pickUpPlaceName", pickUpPlaceName);
+        intent.putExtra("pickUpPlaceAddress", pickUpPlaceAddress);
+
+        intent.putExtra("destination", destination);
+        intent.putExtra("destinationPlaceName", destinationPlaceName);
+        intent.putExtra("clientName", clientName);
+        intent.putExtra("destinationPlaceAddress", destinationPlaceAddress);
+
         startActivity(intent);
     }
 }

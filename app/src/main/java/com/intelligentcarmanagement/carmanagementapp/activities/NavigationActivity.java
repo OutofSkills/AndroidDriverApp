@@ -2,7 +2,6 @@ package com.intelligentcarmanagement.carmanagementapp.activities;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
@@ -13,6 +12,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
+import android.graphics.Point;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -20,7 +20,9 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -30,8 +32,10 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.Projection;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
@@ -41,6 +45,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
@@ -55,9 +60,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
+public class NavigationActivity extends FragmentActivity implements OnMapReadyCallback, GoogleMap.OnMapLongClickListener, GoogleMap.OnMarkerDragListener {
 
-    private static final String TAG = "MapsActivity";
+    private static final String TAG = "NavigationActivity";
     private GoogleMap mMap;
     private Geocoder geocoder;
     private int ACCESS_LOCATION_REQUEST_CODE = 10001;
@@ -71,10 +76,46 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     // Maps polyline route
     private Polyline polyline;
 
+    // Navigation panel data
+    private TextView navigationTargetAddress, navigationTargetName, navigationTargetDistance;
+    private TextView rideClientName;
+
+    // Should change that
+    private LatLng pickUp = null;
+    private LatLng destination = null;
+    private String pickUpPlaceName = "";
+    private String pickUpPlaceAddress = "";
+    private String destinationPlaceName = "";
+    private String destinationPlaceAddress = "";
+    private String clientName = "";
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_navigation);
+
+        // Bind controls
+        navigationTargetAddress = findViewById(R.id.ride_navigation_target_address);
+        navigationTargetName = findViewById(R.id.ride_navigation_target_name);
+        navigationTargetDistance = findViewById(R.id.ride_navigation_distance);
+        rideClientName = findViewById(R.id.ride_navigation_client_name);
+
+        // Get intent extras
+        Intent intent = getIntent();
+
+        pickUp = intent.getParcelableExtra("pickUp");
+        pickUpPlaceName = intent.getStringExtra("pickUpPlaceName");
+        pickUpPlaceAddress = intent.getStringExtra("pickUpPlaceAddress");
+
+        destination = intent.getParcelableExtra("destination");
+        destinationPlaceName = intent.getStringExtra("destinationPlaceName");
+        destinationPlaceAddress = intent.getStringExtra("destinationPlaceAddress");
+        clientName = intent.getStringExtra("clientName");
+
+        /* Testing display panels */
+        updateNavigationPanels(pickUpPlaceName, pickUpPlaceAddress, "10");
+
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -84,9 +125,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         locationRequest = LocationRequest.create();
+        locationRequest.setSmallestDisplacement(10);
         locationRequest.setInterval(100);
         locationRequest.setFastestInterval(100);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        displayStartDialog();
     }
 
     /**
@@ -126,7 +170,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
             super.onLocationResult(locationResult);
             Log.d(TAG, "onLocationResult: " + locationResult.getLastLocation());
             if (mMap != null) {
-                drawRoute(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()), new LatLng(44.439663, 26.096306));
+                drawRoute(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()),
+                        destination);
                 setUserLocationMarker(locationResult.getLastLocation());
             }
         }
@@ -136,20 +181,32 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
 
+
         if (userLocationMarker == null) {
             //Create a new marker
             MarkerOptions markerOptions = new MarkerOptions();
             markerOptions.position(latLng);
             markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.redcar));
-            markerOptions.rotation(location.getBearing());
+//            markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
+            markerOptions.flat(true);
             userLocationMarker = mMap.addMarker(markerOptions);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
         } else  {
             //use the previously created marker
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
-            //mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+
+            CameraPosition cameraPosition = new CameraPosition.Builder()
+                    .target(latLng)
+                    .tilt(60)
+                    .zoom(17)
+                    .bearing(location.getBearing())
+                    .build();
+
+            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
+
+            updateCameraBearing(mMap, location.getBearing());
         }
 
         if (userLocationAccuracyCircle == null) {
@@ -368,5 +425,58 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 });
 
         alertDialog.show();
+    }
+
+    private void updateCameraBearing(GoogleMap googleMap, float bearing) {
+        if ( googleMap == null) return;
+
+        LatLng mapCenter = mMap.getCameraPosition().target;
+        Projection projection = mMap.getProjection();
+        Point centerPoint = projection.toScreenLocation(mapCenter);
+
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int displayHeight = displayMetrics.heightPixels;
+
+        centerPoint.y = centerPoint.y - (int) (displayHeight / 6.0);  // move center down for approx 22%
+
+        LatLng newCenterPoint = projection.fromScreenLocation(centerPoint);
+
+//        CameraPosition camPos = CameraPosition
+//                .builder()
+//                .target(newCenterPoint)
+//                .bearing(bearing)
+//                .zoom(17)
+//                .build();
+
+        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(newCenterPoint, 17));
+    }
+
+    private void displayStartDialog()
+    {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Start Ride")
+                .setMessage("Are you sure that you want to start the ride?")
+                .setNegativeButton("Cancel", null)
+                    .setPositiveButton("Start", null)
+                    .show();
+    }
+
+    private void displayEndDialog()
+    {
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("End Ride")
+                .setMessage("Are you sure that you want to end the ride?")
+                .setNegativeButton("Cancel", null)
+                .setPositiveButton("End", null)
+                .show();
+    }
+
+    private void updateNavigationPanels(String targetName, String targetAddress, String targetDistance)
+    {
+        navigationTargetAddress.setText(targetAddress);
+        navigationTargetName.setText(targetName);
+        navigationTargetDistance.setText(targetDistance + "Km");
+        rideClientName.setText(clientName);
     }
 }

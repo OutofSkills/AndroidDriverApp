@@ -5,6 +5,8 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -22,7 +24,10 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -46,6 +51,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
@@ -55,6 +61,11 @@ import com.google.maps.model.DirectionsRoute;
 import com.google.maps.model.DirectionsStep;
 import com.google.maps.model.EncodedPolyline;
 import com.intelligentcarmanagement.carmanagementapp.R;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
+import com.intelligentcarmanagement.carmanagementapp.utils.EndRideDialog;
+import com.intelligentcarmanagement.carmanagementapp.utils.HaversineAlgorithm;
+import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
+import com.intelligentcarmanagement.carmanagementapp.viewmodels.NavigationViewModel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -66,6 +77,7 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
     private GoogleMap mMap;
     private Geocoder geocoder;
     private int ACCESS_LOCATION_REQUEST_CODE = 10001;
+
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
     LocationManager mLocationManager;
@@ -76,19 +88,17 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
     // Maps polyline route
     private Polyline polyline;
 
+    // Current location
+    private LatLng currentLatLng = null;
+    private LatLng targetLatLng = null;
+
     // Navigation panel data
     private TextView navigationTargetAddress, navigationTargetName, navigationTargetDistance;
     private TextView rideClientName;
+    private Button startRideButton, endRideButton;
 
-    // Should change that
-    private LatLng pickUp = null;
-    private LatLng destination = null;
-    private String pickUpPlaceName = "";
-    private String pickUpPlaceAddress = "";
-    private String destinationPlaceName = "";
-    private String destinationPlaceAddress = "";
-    private String clientName = "";
-
+    private int rideId = 0;
+    private NavigationViewModel viewModel = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,37 +110,146 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
         navigationTargetName = findViewById(R.id.ride_navigation_target_name);
         navigationTargetDistance = findViewById(R.id.ride_navigation_distance);
         rideClientName = findViewById(R.id.ride_navigation_client_name);
+        startRideButton = findViewById(R.id.navigation_start_ride_button);
+        endRideButton = findViewById(R.id.navigation_end_ride_button);
+
+        // Initialize the view model
+        viewModel = new ViewModelProvider(this).get(NavigationViewModel.class);
 
         // Get intent extras
         Intent intent = getIntent();
+        rideId = intent.getIntExtra("rideId", 0);
 
-        pickUp = intent.getParcelableExtra("pickUp");
-        pickUpPlaceName = intent.getStringExtra("pickUpPlaceName");
-        pickUpPlaceAddress = intent.getStringExtra("pickUpPlaceAddress");
-
-        destination = intent.getParcelableExtra("destination");
-        destinationPlaceName = intent.getStringExtra("destinationPlaceName");
-        destinationPlaceAddress = intent.getStringExtra("destinationPlaceAddress");
-        clientName = intent.getStringExtra("clientName");
-
-        /* Testing display panels */
-        updateNavigationPanels(pickUpPlaceName, pickUpPlaceAddress, "10");
+        // Fetch the given ride details
+        viewModel.fetchRide(rideId);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
+
         mapFragment.getMapAsync(this);
         geocoder = new Geocoder(this);
-
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
+        // Set-up GPS
         locationRequest = LocationRequest.create();
         locationRequest.setSmallestDisplacement(10);
         locationRequest.setInterval(100);
         locationRequest.setFastestInterval(100);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        displayStartDialog();
+        // Set event listeners
+        setEventListeners();
+    }
+
+    private void setEventListeners() {
+        // Observe ride object change
+        viewModel.getRide().observe(NavigationActivity.this, new Observer<Ride>() {
+            @Override
+            public void onChanged(Ride ride) {
+                if(ride != null)
+                {
+                    String rideState = ride.getRideState().getName();
+                    if(rideState.equals("ASSIGNED"))
+                    {
+                        targetLatLng = new LatLng(Double.valueOf(ride.getPickUpLat()), Double.valueOf(ride.getPickUpPlaceLong()));
+                        updateNavigationPanels(ride.getPickUpPlaceName(), ride.getPickUpPlaceAddress(),
+                                ride.getClient().getFirstName() + " " + ride.getClient().getLastName());
+
+                        // Enable "Start" button
+                        startRideButton.setVisibility(View.VISIBLE);
+                        startRideButton.setEnabled(true);
+                        endRideButton.setVisibility(View.GONE);
+                    }
+                    else if(rideState.equals("STARTED"))
+                    {
+                        targetLatLng = new LatLng(Double.valueOf(ride.getDestinationPlaceLat()), Double.valueOf(ride.getDestinationPlaceLong()));
+                        updateNavigationPanels(ride.getDestinationPlaceName(), ride.getDestinationPlaceAddress(),
+                                ride.getClient().getFirstName() + " " + ride.getClient().getLastName());
+
+                        // Enable "End" button
+                        startRideButton.setVisibility(View.GONE);
+                        endRideButton.setVisibility(View.VISIBLE);
+                    }
+                    else {
+                        // TODO: Handle possible error
+                        endRideButton.setEnabled(false);
+                        updateNavigationPanels("-", "-", "-");
+                    }
+                }
+                else
+                {
+                    updateNavigationPanels("-", "-", "-");
+
+                    // Handle the error
+                    displayRetryBottomDialog();
+                }
+            }
+        });
+
+        // Start ride button action
+        startRideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewModel.startRide();
+            }
+        });
+
+        // End ride button action
+        endRideButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                viewModel.endRide();
+            }
+        });
+
+        viewModel.getStartRideState().observe(NavigationActivity.this, new Observer<RequestState>() {
+            @Override
+            public void onChanged(RequestState requestState) {
+                switch (requestState)
+                {
+                    case ERROR:
+                        break;
+                    case SUCCESS:
+                        Toast.makeText(NavigationActivity.this, "Ride started successfully.", Toast.LENGTH_SHORT).show();
+                        break;
+                    case START:
+                        // TODO: loader visible
+                        break;
+                }
+            }
+        });
+
+        viewModel.getEndRideState().observe(NavigationActivity.this, new Observer<RequestState>() {
+            @Override
+            public void onChanged(RequestState requestState) {
+                switch (requestState)
+                {
+                    case ERROR:
+                        break;
+                    case SUCCESS:
+                        EndRideDialog dialog = new EndRideDialog();
+                        dialog.showDialog(NavigationActivity.this, viewModel);
+                        break;
+                    case START:
+                        // TODO: loader visible
+                        break;
+                }
+            }
+        });
+    }
+
+    private void displayRetryBottomDialog() {
+        final Snackbar snackBar = Snackbar.make(findViewById(android.R.id.content), "Something went wrong.", Snackbar.LENGTH_INDEFINITE);
+
+        snackBar.setAction("Retry", new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                viewModel.fetchRide(rideId);
+                snackBar.dismiss();
+            }
+        });
+        snackBar.show();
     }
 
     /**
@@ -169,9 +288,15 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
             Log.d(TAG, "onLocationResult: " + locationResult.getLastLocation());
+
+            if(locationResult.getLastLocation() == null)
+                return;
+
             if (mMap != null) {
-                drawRoute(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()),
-                        destination);
+                if(targetLatLng != null){
+                    drawRoute(new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude()),
+                            targetLatLng);
+                }
                 setUserLocationMarker(locationResult.getLastLocation());
             }
         }
@@ -179,26 +304,31 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
 
     private void setUserLocationMarker(Location location) {
 
-        LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
+        currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
+        // Update target distance on the panel
+        if(targetLatLng != null) {
+            double distance = HaversineAlgorithm.HaversineInKM(currentLatLng.latitude, currentLatLng.longitude, targetLatLng.latitude, targetLatLng.longitude);
+            updateNavigationPanels(String.format("%.2f", distance));
+        }
 
         if (userLocationMarker == null) {
             //Create a new marker
             MarkerOptions markerOptions = new MarkerOptions();
-            markerOptions.position(latLng);
+            markerOptions.position(currentLatLng);
             markerOptions.icon(BitmapDescriptorFactory.fromResource(R.drawable.redcar));
-//            markerOptions.rotation(location.getBearing());
+            markerOptions.rotation(location.getBearing());
             markerOptions.anchor((float) 0.5, (float) 0.5);
             markerOptions.flat(true);
             userLocationMarker = mMap.addMarker(markerOptions);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17));
         } else  {
             //use the previously created marker
-            userLocationMarker.setPosition(latLng);
+            userLocationMarker.setPosition(currentLatLng);
             userLocationMarker.setRotation(location.getBearing());
 
             CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(latLng)
+                    .target(currentLatLng)
                     .tilt(60)
                     .zoom(17)
                     .bearing(location.getBearing())
@@ -211,14 +341,14 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
 
         if (userLocationAccuracyCircle == null) {
             CircleOptions circleOptions = new CircleOptions();
-            circleOptions.center(latLng);
+            circleOptions.center(currentLatLng);
             circleOptions.strokeWidth(4);
             circleOptions.strokeColor(Color.argb(255, 255, 0, 0));
             circleOptions.fillColor(Color.argb(32, 255, 0, 0));
             circleOptions.radius(location.getAccuracy());
             userLocationAccuracyCircle = mMap.addCircle(circleOptions);
         } else {
-            userLocationAccuracyCircle.setCenter(latLng);
+            userLocationAccuracyCircle.setCenter(currentLatLng);
             userLocationAccuracyCircle.setRadius(location.getAccuracy());
         }
     }
@@ -452,31 +582,15 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
         googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(newCenterPoint, 17));
     }
 
-    private void displayStartDialog()
-    {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("Start Ride")
-                .setMessage("Are you sure that you want to start the ride?")
-                .setNegativeButton("Cancel", null)
-                    .setPositiveButton("Start", null)
-                    .show();
-    }
-
-    private void displayEndDialog()
-    {
-        new MaterialAlertDialogBuilder(this)
-                .setTitle("End Ride")
-                .setMessage("Are you sure that you want to end the ride?")
-                .setNegativeButton("Cancel", null)
-                .setPositiveButton("End", null)
-                .show();
-    }
-
-    private void updateNavigationPanels(String targetName, String targetAddress, String targetDistance)
+    private void updateNavigationPanels(String targetName, String targetAddress, String clientName)
     {
         navigationTargetAddress.setText(targetAddress);
         navigationTargetName.setText(targetName);
-        navigationTargetDistance.setText(targetDistance + "Km");
         rideClientName.setText(clientName);
+    }
+
+    private void updateNavigationPanels(String targetDistance)
+    {
+        navigationTargetDistance.setText(targetDistance + "Km");
     }
 }

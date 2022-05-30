@@ -14,13 +14,11 @@ import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.adapters.HistoryRecyclerViewAdapter;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityHistoryBinding;
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.HistoryViewModel;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.GregorianCalendar;
 
 public class HistoryActivity extends DrawerBaseActivity {
     private static final String TAG = "HistoryActivity";

@@ -1,6 +1,6 @@
 package com.intelligentcarmanagement.carmanagementapp.api.rides.responses;
 
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 
 import java.util.ArrayList;
 

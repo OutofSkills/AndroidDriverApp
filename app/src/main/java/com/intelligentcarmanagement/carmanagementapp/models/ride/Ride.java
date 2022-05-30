@@ -1,4 +1,7 @@
-package com.intelligentcarmanagement.carmanagementapp.models;
+package com.intelligentcarmanagement.carmanagementapp.models.ride;
+
+import com.intelligentcarmanagement.carmanagementapp.models.Client;
+import com.intelligentcarmanagement.carmanagementapp.utils.Constants;
 
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
@@ -21,11 +24,12 @@ public class Ride implements Serializable {
     private double averageTime;
     private String pickUpTime;
     private Client client;
+    private RideState rideState;
 
     public Ride() {
     }
 
-    public Ride(int id, int driverId, int clientId, String pickUpPlaceAddress, String pickUpPlaceName, String destinationPlaceAddress, String destinationPlaceName, String pickUpPlaceLat, String pickUpPlaceLong, String destinationPlaceLat, String destinationPlaceLong, double distance, double averageTime, String pickUpTime, Client client) {
+    public Ride(int id, int driverId, int clientId, String pickUpPlaceAddress, String pickUpPlaceName, String destinationPlaceAddress, String destinationPlaceName, String pickUpPlaceLat, String pickUpPlaceLong, String destinationPlaceLat, String destinationPlaceLong, double distance, double averageTime, String pickUpTime, Client client, RideState rideState) {
         this.id = id;
         this.driverId = driverId;
         this.clientId = clientId;
@@ -41,6 +45,15 @@ public class Ride implements Serializable {
         this.averageTime = averageTime;
         this.pickUpTime = pickUpTime;
         this.client = client;
+        this.rideState = rideState;
+    }
+
+    public RideState getRideState() {
+        return rideState;
+    }
+
+    public void setRideState(RideState rideState) {
+        this.rideState = rideState;
     }
 
     public String getPickUpPlaceLat() {
@@ -49,10 +62,6 @@ public class Ride implements Serializable {
 
     public void setPickUpPlaceLat(String pickUpPlaceLat) {
         this.pickUpPlaceLat = pickUpPlaceLat;
-    }
-
-    public void setAverageTime(double averageTime) {
-        this.averageTime = averageTime;
     }
 
     public Client getClient() {
@@ -72,7 +81,9 @@ public class Ride implements Serializable {
     }
 
     public double getAverageTime() {
-        return averageTime;
+        double averageSpeed = 40 * Constants.KM_HOUR_TO_MINUTES; //40 KM/H to minutes
+
+        return distance / averageSpeed;
     }
 
     public double getDistance() {
@@ -80,10 +91,7 @@ public class Ride implements Serializable {
     }
 
     public void setDistance(double distance) {
-        double averageSpeed = 40; // Km/h
-
         this.distance = distance;
-        this.averageTime = distance /averageSpeed;
     }
 
     public int getId() {

@@ -4,9 +4,9 @@ import android.util.Log;
 
 import com.intelligentcarmanagement.carmanagementapp.api.RetrofitService;
 import com.intelligentcarmanagement.carmanagementapp.api.rides.IRidesRequests;
-import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetOngoingRide;
+import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetRide;
 import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetRidesHistory;
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -46,7 +46,25 @@ public class RidesRepository implements IRidesRepository{
     }
 
     @Override
-    public void getOngoingRide(String token, int userId, IGetOngoingRide getOngoingRide) {
+    public void getRide(String token, int rideId, IGetRide getRide) {
+        IRidesRequests ridesRequest = RetrofitService.getRetrofit().create(IRidesRequests.class);
+        Call<Ride> initRequest = ridesRequest.getRideById(token, rideId);
+
+        initRequest.enqueue(new Callback<Ride>() {
+            @Override
+            public void onResponse(Call<Ride> call, Response<Ride> response) {
+                getRide.onResponse(response.body());
+            }
+
+            @Override
+            public void onFailure(Call<Ride> call, Throwable t) {
+                getRide.onFailure(t);
+            }
+        });
+    }
+
+    @Override
+    public void getOngoingRide(String token, int userId, IGetRide getOngoingRide) {
         IRidesRequests ridesRequest = RetrofitService.getRetrofit().create(IRidesRequests.class);
         Call<Ride> initRequest = ridesRequest.getOngoingRide(token, userId);
 
@@ -68,6 +86,60 @@ public class RidesRepository implements IRidesRepository{
             @Override
             public void onFailure(Call<Ride> call, Throwable t) {
                 getOngoingRide.onFailure(t);
+            }
+        });
+    }
+
+    @Override
+    public void startRide(String token, int rideId, IGetRide getRide) {
+        IRidesRequests ridesRequest = RetrofitService.getRetrofit().create(IRidesRequests.class);
+        Call<Ride> initRequest = ridesRequest.startRide(token, rideId);
+
+        initRequest.enqueue(new Callback<Ride>() {
+            @Override
+            public void onResponse(Call<Ride> call, Response<Ride> response) {
+                if(response.isSuccessful())
+                    getRide.onResponse(response.body());
+                else {
+                    try {
+                        getRide.onFailure(new Throwable(response.errorBody().string()));
+                    } catch (IOException e) {
+                        Log.d(TAG, "onResponse: ");
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Ride> call, Throwable t) {
+                getRide.onFailure(t);
+            }
+        });
+    }
+
+    @Override
+    public void endRide(String token, int rideId, IGetRide getRide) {
+        IRidesRequests ridesRequest = RetrofitService.getRetrofit().create(IRidesRequests.class);
+        Call<Ride> initRequest = ridesRequest.endRide(token, rideId);
+
+        initRequest.enqueue(new Callback<Ride>() {
+            @Override
+            public void onResponse(Call<Ride> call, Response<Ride> response) {
+                if(response.isSuccessful())
+                    getRide.onResponse(response.body());
+                else {
+                    try {
+                        getRide.onFailure(new Throwable(response.errorBody().string()));
+                    } catch (IOException e) {
+                        Log.d(TAG, "onResponse: ");
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Ride> call, Throwable t) {
+                getRide.onFailure(t);
             }
         });
     }

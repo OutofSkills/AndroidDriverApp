@@ -16,8 +16,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.libraries.places.api.model.Place;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.snackbar.Snackbar;
@@ -25,7 +23,7 @@ import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.adapters.DashboardRecyclerViewAdapter;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityDashboardBinding;
 import com.intelligentcarmanagement.carmanagementapp.models.Notification;
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.utils.ImageConverter;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.DashboardViewModel;
@@ -232,24 +230,8 @@ public class DashboardActivity extends DrawerBaseActivity {
         * pick-up location, destination, client name..
         */
 
-        LatLng pickUp = new LatLng(Double.valueOf(ride.getPickUpLat()), Double.valueOf(ride.getPickUpPlaceLong()));
-        String pickUpPlaceName = ride.getPickUpPlaceName();
-        String pickUpPlaceAddress = ride.getPickUpPlaceAddress();
-
-        LatLng destination = new LatLng(Double.valueOf(ride.getDestinationPlaceLat()), Double.valueOf(ride.getDestinationPlaceLong()));
-        String destinationPlaceName = ride.getDestinationPlaceName();
-        String destinationPlaceAddress = ride.getDestinationPlaceAddress();
-
-        String clientName = ride.getClient().getFirstName() + " " + ride.getClient().getLastName();
-
-        intent.putExtra("pickUp", pickUp);
-        intent.putExtra("pickUpPlaceName", pickUpPlaceName);
-        intent.putExtra("pickUpPlaceAddress", pickUpPlaceAddress);
-
-        intent.putExtra("destination", destination);
-        intent.putExtra("destinationPlaceName", destinationPlaceName);
-        intent.putExtra("clientName", clientName);
-        intent.putExtra("destinationPlaceAddress", destinationPlaceAddress);
+        int rideId = ride.getId();
+        intent.putExtra("rideId", rideId);
 
         startActivity(intent);
     }

@@ -1,0 +1,199 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Ride Completed"
+            android:textSize="16dp"
+            android:textColor="@color/black"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="5dp">
+
+        <TextView
+            android:id="@+id/completed_ride_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:tooltipText="Request date"
+            android:text="3/12/22"/>
+
+        <TextView
+            android:id="@+id/completed_ride_total_income"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:tooltipText="Income"
+            android:text="$20"
+            />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="10"
+        android:orientation="horizontal">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/completed_ride_pick_up_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/pickUpIndicator"
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                app:layout_constraintStart_toStartOf="@id/completed_ride_pick_up_layout"
+                app:layout_constraintTop_toTopOf="parent"
+                android:background="@drawable/bg_circle_black"/>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                app:layout_constraintStart_toStartOf="@id/pickUpIndicator"
+                android:layout_marginStart="2.5dp"
+                app:layout_constraintTop_toBottomOf="@id/pickUpIndicator"
+                app:layout_constraintBottom_toTopOf="@id/dropIndicator"
+                android:background="@color/black"/>
+
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/dropIndicator"
+                android:layout_width="9dp"
+                android:layout_height="9dp"
+                app:layout_constraintStart_toStartOf="@id/completed_ride_pick_up_layout"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:background="@android:color/black"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="5dp"
+            android:layout_weight="6"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/completed_ride_pick_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="Pick up" />
+
+            <TextView
+                android:id="@+id/completed_ride_destination"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:singleLine="true"
+                android:text="Destination" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="3"
+
+            android:gravity="center">
+
+            <TextView
+                android:id="@+id/completed_ride_distance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="0 km"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <!-- Horizontal bar -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:background="@color/dark_grey"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_margin="5dp">
+
+        <FrameLayout
+            android:id="@+id/completed_ride_client_avatar_layout"
+            android:layout_width="40dp"
+            android:layout_height="40dp">
+
+            <com.google.android.material.imageview.ShapeableImageView
+                android:id="@+id/completed_ride_client_avatar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:shapeAppearanceOverlay="@style/roundedImageViewRounded"
+                app:strokeColor="@color/colorPrimary"
+                app:strokeWidth="1dp"
+                android:src="@drawable/profile_pic"
+                android:scaleType="centerCrop"
+                android:layout_gravity="bottom|center_horizontal" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/completed_ride_client_rate_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_toEndOf="@id/completed_ride_client_avatar_layout"
+            android:layout_centerVertical="true"
+            android:text="Would you like to rate ?"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <RatingBar
+            android:id="@+id/completed_ride_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            style="?android:attr/ratingBarStyleSmall"
+            android:numStars="5"
+            android:stepSize="0.1"
+            android:isIndicator="false" />
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp">
+
+        <Button
+            android:id="@+id/completed_ride_end_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Submit" />
+    </RelativeLayout>
+
+</LinearLayout>

@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.intelligentcarmanagement.carmanagementapp.R;
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.utils.ImageConverter;
 
 import org.ocpsoft.prettytime.PrettyTime;
@@ -48,9 +48,9 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
         holder.ridePickUpAddress.setText(mRides.get(position).getPickUpPlaceName());
         holder.rideDestinationAddress.setText(mRides.get(position).getDestinationPlaceName());
         holder.rideDistance.setText(String.format("%.2f", mRides.get(position).getDistance()) + "km");
-        holder.rideTime.setText(String.valueOf(mRides.get(position).getAverageTime()));
+        holder.rideTime.setText(String.valueOf((int)mRides.get(position).getAverageTime()) + " min");
         // TODO: Have to implement
-        holder.rideTime.setText(String.valueOf("$10"));
+        holder.rideTotalMoney.setText(String.valueOf("$10"));
         holder.clientUsername.setText(mRides.get(position).getClient().getEmail());
 
         String string64 = mRides.get(position).getClient().getAvatar();

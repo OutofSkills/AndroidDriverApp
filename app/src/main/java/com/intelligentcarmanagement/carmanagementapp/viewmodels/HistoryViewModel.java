@@ -9,7 +9,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetRidesHistory;
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.IRidesRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.RidesRepository;
 import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;

@@ -1,10 +1,8 @@
 package com.intelligentcarmanagement.carmanagementapp.api.rides.responses;
 
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 
-import java.util.ArrayList;
-
-public interface IGetOngoingRide {
+public interface IGetRide {
     void onResponse(Ride ride);
     void onFailure(Throwable t);
 }

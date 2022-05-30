@@ -9,9 +9,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.intelligentcarmanagement.carmanagementapp.api.notifications.responses.IGetNotifications;
-import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetOngoingRide;
+import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetRide;
 import com.intelligentcarmanagement.carmanagementapp.models.Notification;
-import com.intelligentcarmanagement.carmanagementapp.models.Ride;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.INotificationsRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.NotificationsRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.IRidesRepository;
@@ -47,7 +47,7 @@ public class DashboardViewModel extends AndroidViewModel {
         String jwtToken = mSessionManager.getUserData().get(SessionManager.KEY_JWT_TOKEN);
         String userId = mSessionManager.getUserData().get(SessionManager.KEY_ID);
 
-        mRidesRepository.getOngoingRide(jwtToken, Integer.valueOf(userId), new IGetOngoingRide() {
+        mRidesRepository.getOngoingRide(jwtToken, Integer.valueOf(userId), new IGetRide() {
             @Override
             public void onResponse(Ride ride) {
                 mOngoingRideLiveData.postValue(ride);

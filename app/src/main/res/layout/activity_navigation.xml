@@ -128,13 +128,16 @@
                 android:gravity="end">
 
                 <Button
+                    android:id="@+id/navigation_start_ride_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Start"
                     android:backgroundTint="@color/color_green"
+                    android:enabled="false"
                     android:visibility="visible"/>
 
                 <Button
+                    android:id="@+id/navigation_end_ride_button"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Complete"

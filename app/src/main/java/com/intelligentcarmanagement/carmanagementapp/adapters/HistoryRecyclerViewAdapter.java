@@ -59,6 +59,8 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
         holder.clientAvatar.setImageBitmap(bmp);
         // TODO: Have to implement
         holder.clientRating.setText("4.8");
+        //TODO: Have to implement
+        holder.rideAccuracy.setText("72%");
     }
 
     @Override
@@ -67,13 +69,14 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView rideDate, ridePickUpAddress, rideDestinationAddress, rideDistance, rideTime, rideTotalMoney;
+        TextView rideDate, ridePickUpAddress, rideDestinationAddress, rideDistance, rideTime, rideTotalMoney, rideAccuracy;
         TextView clientUsername, clientRating;
         ShapeableImageView clientAvatar;
         RelativeLayout parentLayout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            rideAccuracy = itemView.findViewById(R.id.history_ride_accuracy);
             rideDate = itemView.findViewById(R.id.history_ride_date);
             ridePickUpAddress = itemView.findViewById(R.id.history_ride_from);
             rideDestinationAddress = itemView.findViewById(R.id.history_ride_to);

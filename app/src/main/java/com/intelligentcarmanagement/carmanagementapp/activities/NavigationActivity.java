@@ -5,7 +5,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentActivity;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.Manifest;
@@ -50,7 +49,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
@@ -61,10 +60,8 @@ import com.google.maps.model.DirectionsRoute;
 import com.google.maps.model.DirectionsStep;
 import com.google.maps.model.EncodedPolyline;
 import com.intelligentcarmanagement.carmanagementapp.R;
-import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.utils.EndRideDialog;
 import com.intelligentcarmanagement.carmanagementapp.utils.HaversineAlgorithm;
-import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.NavigationViewModel;
 
 import java.io.IOException;
@@ -76,7 +73,7 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
     private static final String TAG = "NavigationActivity";
     private GoogleMap mMap;
     private Geocoder geocoder;
-    private int ACCESS_LOCATION_REQUEST_CODE = 10001;
+    private final int ACCESS_LOCATION_REQUEST_CODE = 10001;
 
     FusedLocationProviderClient fusedLocationProviderClient;
     LocationRequest locationRequest;
@@ -91,6 +88,9 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
     // Current location
     private LatLng currentLatLng = null;
     private LatLng targetLatLng = null;
+
+    // Loader
+    private CircularProgressIndicator mProgressIndicator;
 
     // Navigation panel data
     private TextView navigationTargetAddress, navigationTargetName, navigationTargetDistance;
@@ -112,6 +112,7 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
         rideClientName = findViewById(R.id.ride_navigation_client_name);
         startRideButton = findViewById(R.id.navigation_start_ride_button);
         endRideButton = findViewById(R.id.navigation_end_ride_button);
+        mProgressIndicator = findViewById(R.id.navigation_progress_indicator);
 
         // Initialize the view model
         viewModel = new ViewModelProvider(this).get(NavigationViewModel.class);
@@ -144,97 +145,84 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
 
     private void setEventListeners() {
         // Observe ride object change
-        viewModel.getRide().observe(NavigationActivity.this, new Observer<Ride>() {
-            @Override
-            public void onChanged(Ride ride) {
-                if(ride != null)
+        viewModel.getRide().observe(NavigationActivity.this, ride -> {
+            if(ride != null)
+            {
+                String rideState = ride.getRideState().getName();
+                if(rideState.equals("ASSIGNED"))
                 {
-                    String rideState = ride.getRideState().getName();
-                    if(rideState.equals("ASSIGNED"))
-                    {
-                        targetLatLng = new LatLng(Double.valueOf(ride.getPickUpLat()), Double.valueOf(ride.getPickUpPlaceLong()));
-                        updateNavigationPanels(ride.getPickUpPlaceName(), ride.getPickUpPlaceAddress(),
-                                ride.getClient().getFirstName() + " " + ride.getClient().getLastName());
+                    targetLatLng = new LatLng(Double.parseDouble(ride.getPickUpLat()), Double.parseDouble(ride.getPickUpPlaceLong()));
+                    updateNavigationPanels(ride.getPickUpPlaceName(), ride.getPickUpPlaceAddress(),
+                            ride.getClient().getFirstName() + " " + ride.getClient().getLastName());
 
-                        // Enable "Start" button
-                        startRideButton.setVisibility(View.VISIBLE);
-                        startRideButton.setEnabled(true);
-                        endRideButton.setVisibility(View.GONE);
-                    }
-                    else if(rideState.equals("STARTED"))
-                    {
-                        targetLatLng = new LatLng(Double.valueOf(ride.getDestinationPlaceLat()), Double.valueOf(ride.getDestinationPlaceLong()));
-                        updateNavigationPanels(ride.getDestinationPlaceName(), ride.getDestinationPlaceAddress(),
-                                ride.getClient().getFirstName() + " " + ride.getClient().getLastName());
-
-                        // Enable "End" button
-                        startRideButton.setVisibility(View.GONE);
-                        endRideButton.setVisibility(View.VISIBLE);
-                    }
-                    else {
-                        // TODO: Handle possible error
-                        endRideButton.setEnabled(false);
-                        updateNavigationPanels("-", "-", "-");
-                    }
+                    // Enable "Start" button
+                    startRideButton.setVisibility(View.VISIBLE);
+                    startRideButton.setEnabled(true);
+                    endRideButton.setVisibility(View.GONE);
                 }
-                else
+                else if(rideState.equals("STARTED"))
                 {
+                    targetLatLng = new LatLng(Double.parseDouble(ride.getDestinationPlaceLat()), Double.parseDouble(ride.getDestinationPlaceLong()));
+                    updateNavigationPanels(ride.getDestinationPlaceName(), ride.getDestinationPlaceAddress(),
+                            ride.getClient().getFirstName() + " " + ride.getClient().getLastName());
+
+                    // Enable "End" button
+                    startRideButton.setVisibility(View.GONE);
+                    endRideButton.setVisibility(View.VISIBLE);
+                }
+                else {
+                    // TODO: Handle possible error
+                    endRideButton.setEnabled(false);
                     updateNavigationPanels("-", "-", "-");
-
-                    // Handle the error
-                    displayRetryBottomDialog();
                 }
+            }
+            else
+            {
+                updateNavigationPanels("-", "-", "-");
+
+                // Handle the error
+                displayRetryBottomDialog();
             }
         });
 
         // Start ride button action
-        startRideButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                viewModel.startRide();
-            }
-        });
+        startRideButton.setOnClickListener(view -> viewModel.startRide());
 
         // End ride button action
-        endRideButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                viewModel.endRide();
+        endRideButton.setOnClickListener(view -> viewModel.endRide());
+
+        viewModel.getStartRideState().observe(NavigationActivity.this, requestState -> {
+            switch (requestState)
+            {
+                case ERROR:
+                    mProgressIndicator.setVisibility(View.GONE);
+                    break;
+                case SUCCESS:
+                    mProgressIndicator.setVisibility(View.GONE);
+                    Toast.makeText(NavigationActivity.this, "Ride started successfully.", Toast.LENGTH_SHORT).show();
+                    break;
+                case START:
+                    mProgressIndicator.setVisibility(View.VISIBLE);
+                    mProgressIndicator.bringToFront();
+                    break;
             }
         });
 
-        viewModel.getStartRideState().observe(NavigationActivity.this, new Observer<RequestState>() {
-            @Override
-            public void onChanged(RequestState requestState) {
-                switch (requestState)
-                {
-                    case ERROR:
-                        break;
-                    case SUCCESS:
-                        Toast.makeText(NavigationActivity.this, "Ride started successfully.", Toast.LENGTH_SHORT).show();
-                        break;
-                    case START:
-                        // TODO: loader visible
-                        break;
-                }
-            }
-        });
-
-        viewModel.getEndRideState().observe(NavigationActivity.this, new Observer<RequestState>() {
-            @Override
-            public void onChanged(RequestState requestState) {
-                switch (requestState)
-                {
-                    case ERROR:
-                        break;
-                    case SUCCESS:
-                        EndRideDialog dialog = new EndRideDialog();
-                        dialog.showDialog(NavigationActivity.this, viewModel);
-                        break;
-                    case START:
-                        // TODO: loader visible
-                        break;
-                }
+        viewModel.getEndRideState().observe(NavigationActivity.this, requestState -> {
+            switch (requestState)
+            {
+                case ERROR:
+                    mProgressIndicator.setVisibility(View.GONE);
+                    break;
+                case SUCCESS:
+                    mProgressIndicator.setVisibility(View.GONE);
+                    EndRideDialog dialog = new EndRideDialog();
+                    dialog.showDialog(NavigationActivity.this, viewModel);
+                    break;
+                case START:
+                    mProgressIndicator.setVisibility(View.VISIBLE);
+                    mProgressIndicator.bringToFront();
+                    break;
             }
         });
     }
@@ -242,12 +230,9 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
     private void displayRetryBottomDialog() {
         final Snackbar snackBar = Snackbar.make(findViewById(android.R.id.content), "Something went wrong.", Snackbar.LENGTH_INDEFINITE);
 
-        snackBar.setAction("Retry", new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewModel.fetchRide(rideId);
-                snackBar.dismiss();
-            }
+        snackBar.setAction("Retry", v -> {
+            viewModel.fetchRide(rideId);
+            snackBar.dismiss();
         });
         snackBar.show();
     }
@@ -288,9 +273,6 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
             Log.d(TAG, "onLocationResult: " + locationResult.getLastLocation());
-
-            if(locationResult.getLastLocation() == null)
-                return;
 
             if (mMap != null) {
                 if(targetLatLng != null){

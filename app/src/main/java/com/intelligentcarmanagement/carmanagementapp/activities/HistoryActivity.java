@@ -71,6 +71,7 @@ public class HistoryActivity extends DrawerBaseActivity {
                     case START:
                         Log.d(TAG, "onChanged: start");
                         mProgressIndicator.setVisibility(View.VISIBLE);
+                        mProgressIndicator.bringToFront();
                         break;
                 }
             }

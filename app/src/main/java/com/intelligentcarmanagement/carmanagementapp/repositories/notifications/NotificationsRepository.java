@@ -8,7 +8,7 @@ import com.intelligentcarmanagement.carmanagementapp.api.RetrofitService;
 import com.intelligentcarmanagement.carmanagementapp.api.notifications.INotificationsRequests;
 import com.intelligentcarmanagement.carmanagementapp.api.notifications.responses.IGetNotifications;
 import com.intelligentcarmanagement.carmanagementapp.api.notifications.responses.IUpdateToken;
-import com.intelligentcarmanagement.carmanagementapp.models.Notification;
+import com.intelligentcarmanagement.carmanagementapp.models.notifications.Notification;
 
 import java.util.ArrayList;
 

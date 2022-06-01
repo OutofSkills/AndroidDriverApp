@@ -22,7 +22,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.adapters.DashboardRecyclerViewAdapter;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityDashboardBinding;
-import com.intelligentcarmanagement.carmanagementapp.models.Notification;
+import com.intelligentcarmanagement.carmanagementapp.models.notifications.Notification;
 import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.utils.ImageConverter;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;

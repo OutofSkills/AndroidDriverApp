@@ -2,6 +2,7 @@ package com.intelligentcarmanagement.carmanagementapp.utils;
 
 import android.app.Activity;
 import android.app.Dialog;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.drawable.ColorDrawable;
 import android.view.View;
@@ -15,6 +16,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.intelligentcarmanagement.carmanagementapp.R;
+import com.intelligentcarmanagement.carmanagementapp.activities.HomeActivity;
 import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.NavigationViewModel;
 
@@ -75,17 +77,25 @@ public class EndRideDialog {
 
         // Rating bar
         RatingBar ratingBar = dialog.findViewById(R.id.completed_ride_rating);
-        float rating = ratingBar.getRating();
-
 
         Button dialogSubmitButton = (Button) dialog.findViewById(R.id.completed_ride_end_button);
 
         dialogSubmitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // TODO: Handle rate ride
+                viewModel.rateRide(ratingBar.getRating());
                 dialog.dismiss();
+                activity.startActivity(new Intent(activity, HomeActivity.class));
+                activity.finish();
             }
+        });
+
+        Button dialogSkipButton = (Button) dialog.findViewById(R.id.completed_ride_skip_button);
+
+        dialogSkipButton.setOnClickListener(v -> {
+            dialog.dismiss();
+            activity.startActivity(new Intent(activity, HomeActivity.class));
+            activity.finish();
         });
 
         dialog.show();

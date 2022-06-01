@@ -1,6 +1,6 @@
 package com.intelligentcarmanagement.carmanagementapp.api.notifications.responses;
 
-import com.intelligentcarmanagement.carmanagementapp.models.Notification;
+import com.intelligentcarmanagement.carmanagementapp.models.notifications.Notification;
 
 import java.util.ArrayList;
 

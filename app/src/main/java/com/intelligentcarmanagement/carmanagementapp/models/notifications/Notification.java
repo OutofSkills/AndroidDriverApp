@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.models;
+package com.intelligentcarmanagement.carmanagementapp.models.notifications;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

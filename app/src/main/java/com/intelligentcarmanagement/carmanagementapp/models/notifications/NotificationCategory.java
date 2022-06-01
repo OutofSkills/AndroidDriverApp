@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.models;
+package com.intelligentcarmanagement.carmanagementapp.models.notifications;
 
 public class NotificationCategory {
     private String name;

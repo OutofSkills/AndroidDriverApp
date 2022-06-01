@@ -22,14 +22,19 @@ public class Ride implements Serializable {
     private String destinationPlaceLong;
     private double distance;
     private double averageTime;
+    private double price;
     private String pickUpTime;
     private Client client;
     private RideState rideState;
+    private Review review;
 
     public Ride() {
     }
 
-    public Ride(int id, int driverId, int clientId, String pickUpPlaceAddress, String pickUpPlaceName, String destinationPlaceAddress, String destinationPlaceName, String pickUpPlaceLat, String pickUpPlaceLong, String destinationPlaceLat, String destinationPlaceLong, double distance, double averageTime, String pickUpTime, Client client, RideState rideState) {
+    public Ride(int id, int driverId, int clientId, String pickUpPlaceAddress, String pickUpPlaceName,
+                String destinationPlaceAddress, String destinationPlaceName, String pickUpPlaceLat, String pickUpPlaceLong,
+                String destinationPlaceLat, String destinationPlaceLong, double distance, double averageTime, double price,
+                String pickUpTime, Client client, RideState rideState, Review review) {
         this.id = id;
         this.driverId = driverId;
         this.clientId = clientId;
@@ -43,9 +48,27 @@ public class Ride implements Serializable {
         this.destinationPlaceLong = destinationPlaceLong;
         this.distance = distance;
         this.averageTime = averageTime;
+        this.price = price;
         this.pickUpTime = pickUpTime;
         this.client = client;
         this.rideState = rideState;
+        this.review = review;
+    }
+
+    public Review getReview() {
+        return review;
+    }
+
+    public void setReview(Review review) {
+        this.review = review;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public RideState getRideState() {

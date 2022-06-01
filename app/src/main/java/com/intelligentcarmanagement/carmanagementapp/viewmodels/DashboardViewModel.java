@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.intelligentcarmanagement.carmanagementapp.api.notifications.responses.IGetNotifications;
 import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetRide;
-import com.intelligentcarmanagement.carmanagementapp.models.Notification;
+import com.intelligentcarmanagement.carmanagementapp.models.notifications.Notification;
 import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.INotificationsRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.NotificationsRepository;

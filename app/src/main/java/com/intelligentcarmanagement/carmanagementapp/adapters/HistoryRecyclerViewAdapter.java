@@ -24,7 +24,7 @@ import java.util.Locale;
 public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecyclerViewAdapter.ViewHolder>{
     private static final String TAG = "HistoryRecyclerViewAdapter";
     Context mContext;
-    ArrayList<Ride> mRides = new ArrayList<Ride>();
+    ArrayList<Ride> mRides;
 
     public HistoryRecyclerViewAdapter(Context context, ArrayList<Ride> rides) {
         this.mRides = rides;
@@ -49,18 +49,21 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
         holder.rideDestinationAddress.setText(mRides.get(position).getDestinationPlaceName());
         holder.rideDistance.setText(String.format("%.2f", mRides.get(position).getDistance()) + "km");
         holder.rideTime.setText(String.valueOf((int)mRides.get(position).getAverageTime()) + " min");
-        // TODO: Have to implement
-        holder.rideTotalMoney.setText(String.valueOf("$10"));
+
+        String price = String.valueOf(mRides.get(position).getPrice());
+        holder.rideTotalMoney.setText(String.valueOf("$" + price));
         holder.clientUsername.setText(mRides.get(position).getClient().getEmail());
 
         String string64 = mRides.get(position).getClient().getAvatar();
         byte[] imageBytes = ImageConverter.convertBase64ToBytes(string64);
         Bitmap bmp = ImageConverter.convertBytesToBitmap(imageBytes);
         holder.clientAvatar.setImageBitmap(bmp);
-        // TODO: Have to implement
-        holder.clientRating.setText("4.8");
-        //TODO: Have to implement
-        holder.rideAccuracy.setText("72%");
+
+        String rating = String.valueOf(mRides.get(position).getClient().getRating());
+        holder.clientRating.setText(String.valueOf(rating));
+
+        String accuracy = mRides.get(position).getReview() == null ? "0.0" : String.valueOf(mRides.get(position).getReview().getDrivingAccuracy());
+        holder.rideAccuracy.setText(accuracy + "%");
     }
 
     @Override

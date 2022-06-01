@@ -14,7 +14,7 @@ import org.ocpsoft.prettytime.PrettyTime;
 
 import com.google.android.material.imageview.ShapeableImageView;
 import com.intelligentcarmanagement.carmanagementapp.R;
-import com.intelligentcarmanagement.carmanagementapp.models.Notification;
+import com.intelligentcarmanagement.carmanagementapp.models.notifications.Notification;
 
 import java.util.ArrayList;
 import java.util.Locale;

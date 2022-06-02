@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.api.users;
+package com.intelligentcarmanagement.carmanagementapp.api.users.responses;
 
 
 import com.intelligentcarmanagement.carmanagementapp.models.User;

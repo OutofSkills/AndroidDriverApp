@@ -7,7 +7,7 @@ import android.util.Log;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.MutableLiveData;
 
-import com.intelligentcarmanagement.carmanagementapp.repositories.UsersRepo;
+import com.intelligentcarmanagement.carmanagementapp.repositories.users.UsersRepository;
 import com.intelligentcarmanagement.carmanagementapp.utils.ImageConverter;
 import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
 
@@ -17,12 +17,12 @@ public class DrawerViewModel extends AndroidViewModel {
     private MutableLiveData<Bitmap> mAvatarLiveData = new MutableLiveData<>();
     private MutableLiveData<String> mEmailLiveData = new MutableLiveData<>();
 
-    UsersRepo usersRepo;
+    UsersRepository usersRepo;
     SessionManager sessionManager;
 
     public DrawerViewModel(Application context) {
         super(context);
-        usersRepo = new UsersRepo();
+        usersRepo = new UsersRepository();
         sessionManager = new SessionManager(context);
     }
 

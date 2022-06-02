@@ -18,9 +18,9 @@ import com.intelligentcarmanagement.carmanagementapp.models.login.LoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.models.User;
 import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerErrorResponse;
 import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerValidationError;
-import com.intelligentcarmanagement.carmanagementapp.repositories.UsersRepo;
+import com.intelligentcarmanagement.carmanagementapp.repositories.users.UsersRepository;
 import com.intelligentcarmanagement.carmanagementapp.api.login.ILoginResponse;
-import com.intelligentcarmanagement.carmanagementapp.api.users.IGetUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IGetUserResponse;
 import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.INotificationsRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.NotificationsRepository;
 import com.intelligentcarmanagement.carmanagementapp.utils.JwtParser;
@@ -36,12 +36,12 @@ public class LoginViewModel extends AndroidViewModel {
     private MutableLiveData<String> mLoginErrorMutableData = new MutableLiveData<>();
 
     private SessionManager mSessionManager;
-    private UsersRepo mUsersRepository;
+    private UsersRepository mUsersRepository;
     private INotificationsRepository mNotificationsRepository;
 
     public LoginViewModel(Application context) {
         super(context);
-        mUsersRepository = new UsersRepo();
+        mUsersRepository = new UsersRepository();
         mSessionManager = new SessionManager(context);
     }
 

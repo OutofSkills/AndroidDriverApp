@@ -35,10 +35,10 @@
                     />
 
                 <TextView
-                    android:id="@+id/dashboardTotalIncome"
+                    android:id="@+id/dashboard_today_earnings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="278.98 LEI"
+                    android:text="$ 0.0"
                     android:textSize="20dp"
                     android:textStyle="bold"
                     android:textColor="@color/black"
@@ -63,22 +63,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
+                        android:gravity="center_horizontal"
                         android:layout_weight="30">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total Rides"
+                            android:text="Rides"
                             android:textColor="@color/dark_grey"
-                            android:textSize="14dp"/>
+                            android:textSize="14sp"/>
 
                         <TextView
-                            android:layout_width="match_parent"
+                            android:id="@+id/dashboard_today_rides"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="14"
+                            android:text="0"
                             android:textColor="@color/black"
-                            android:textSize="16dp"
-                            android:gravity="center_horizontal"/>
+                            android:textSize="16sp"/>
 
                     </LinearLayout>
 
@@ -86,22 +87,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
+                        android:gravity="center_horizontal"
                         android:layout_weight="30">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Time Online"
+                            android:text="Accuracy"
                             android:textColor="@color/dark_grey"
-                            android:textSize="14dp"/>
+                            android:textSize="14sp"/>
 
                         <TextView
-                            android:layout_width="match_parent"
+                            android:id="@+id/dashboard_today_accuracy"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="13h 20min"
+                            android:text="0 %"
                             android:textColor="@color/black"
-                            android:textSize="16dp"
-                            android:gravity="center_horizontal"/>
+                            android:textSize="16sp"/>
 
                     </LinearLayout>
 
@@ -109,22 +111,23 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:orientation="vertical"
+                        android:gravity="center_horizontal"
                         android:layout_weight="30">
 
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Total Distance"
+                            android:text="Distance"
                             android:textColor="@color/dark_grey"
-                            android:textSize="14dp"/>
+                            android:textSize="14sp"/>
 
                         <TextView
-                            android:layout_width="match_parent"
+                            android:id="@+id/dashboard_today_distance"
+                            android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="289 km"
                             android:textColor="@color/black"
-                            android:textSize="16dp"
-                            android:gravity="center_horizontal"/>
+                            android:textSize="16dp"/>
 
                     </LinearLayout>
 

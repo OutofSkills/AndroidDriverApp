@@ -5,6 +5,7 @@ import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -28,8 +29,11 @@ import com.google.android.material.imageview.ShapeableImageView;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityProfileBinding;
 import com.intelligentcarmanagement.carmanagementapp.models.User;
+import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.utils.ImageConverter;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.ProfileViewModel;
+
+import java.util.ArrayList;
 
 public class ProfileActivity extends DrawerBaseActivity {
     private static final String TAG = "ProfileActivity";
@@ -102,6 +106,7 @@ public class ProfileActivity extends DrawerBaseActivity {
         // Get the view model
         profileViewModel = ViewModelProviders.of(this).get(ProfileViewModel.class);
         profileViewModel.fetchUser();
+        profileViewModel.getHistory();
 
         // Set event listeners
         setEventListeners();
@@ -167,6 +172,16 @@ public class ProfileActivity extends DrawerBaseActivity {
                     userAvatar.setImageBitmap(ImageConverter.convertBytesToBitmap(imageBytes));
                 }
             }
+        });
+
+        // Get rides to compute the rating
+        profileViewModel.getRating().observe(ProfileActivity.this, aDouble -> {
+            profileRating.setText(String.format("%.1f/5", aDouble));
+        });
+
+        // Get rides to compute the rating
+        profileViewModel.getRidesNumber().observe(ProfileActivity.this, number -> {
+            profileRidesNumber.setText(String.valueOf(number));
         });
     }
 
@@ -237,7 +252,7 @@ public class ProfileActivity extends DrawerBaseActivity {
         try {
             // Text views
             if (user.getAvatar().matches("")) {
-                profilePicture.setImageDrawable(getDrawable(R.drawable.no_image));
+                profilePicture.setImageDrawable(AppCompatResources.getDrawable(ProfileActivity.this, R.drawable.no_image));
             } else {
                 byte[] encodedImage = ImageConverter.convertBase64ToBytes(user.getAvatar());
                 profilePicture.setImageBitmap(ImageConverter.convertBytesToBitmap(encodedImage));
@@ -247,8 +262,6 @@ public class ProfileActivity extends DrawerBaseActivity {
             profileFirstName.setText(user.getFirstName());
             profileLastName.setText(user.getLastName());
             profilePhoneNumber.setText(user.getPhoneNumber());
-            profileRating.setText(String.valueOf(user.getRating()) + "/10");
-            profileRidesNumber.setText(String.valueOf(user.getDeservedClients()));
 
             // Edit texts
             profileAddressEdit.setText("Not specified yet");

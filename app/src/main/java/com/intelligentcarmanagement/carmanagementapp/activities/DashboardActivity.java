@@ -1,6 +1,5 @@
 package com.intelligentcarmanagement.carmanagementapp.activities;
 
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,13 +18,13 @@ import android.widget.Toast;
 import com.google.android.material.card.MaterialCardView;
 import com.google.android.material.imageview.ShapeableImageView;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.crashlytics.buildtools.reloc.com.google.common.collect.Lists;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.adapters.DashboardRecyclerViewAdapter;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityDashboardBinding;
 import com.intelligentcarmanagement.carmanagementapp.models.notifications.Notification;
 import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.utils.ImageConverter;
-import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.DashboardViewModel;
 
 import java.util.ArrayList;
@@ -36,6 +35,9 @@ public class DashboardActivity extends DrawerBaseActivity {
     ActivityDashboardBinding dashboardBinding;
 
     private SwipeRefreshLayout swipeRefreshLayout;
+
+    // Today details card
+    private TextView totalEarningTextView, ridesNumberTextView, distanceTextView, averageAccuracyTextView;
 
     // Ongoing ride card details
     private MaterialCardView ongoingRideCard, noOngoingRideCard;
@@ -65,9 +67,11 @@ public class DashboardActivity extends DrawerBaseActivity {
         allocateActivityTitle("Dashboard");
 
         // Bind views to its controls
+        // Notifications
         swipeRefreshLayout = findViewById(R.id.dashboard_refresh_layout);
         recyclerView = findViewById(R.id.notifications_recycler_view);
         noAvailableNotificationsTextView = findViewById(R.id.dashboard_no_available_notifications_text);
+        // Ongoing ride
         navigateToButton = findViewById(R.id.dashboard_navigate_to_button);
         contactPhoneNumberButton = findViewById(R.id.ongoing_ride_contact_phone_number);
         contactChatButton = findViewById(R.id.ongoing_ride_contact_chat);
@@ -76,14 +80,18 @@ public class DashboardActivity extends DrawerBaseActivity {
         clientAvatar = findViewById(R.id.ongoing_ride_client_avatar);
         clientUsername = findViewById(R.id.ongoing_ride_client_username);
         clientRating = findViewById(R.id.ongoing_ride_client_rating);
+        // Today panel
+        totalEarningTextView = findViewById(R.id.dashboard_today_earnings);
+        distanceTextView = findViewById(R.id.dashboard_today_distance);
+        averageAccuracyTextView = findViewById(R.id.dashboard_today_accuracy);
+        ridesNumberTextView = findViewById(R.id.dashboard_today_rides);
 
         mViewModel = new ViewModelProvider(this).get(DashboardViewModel.class);
 
         // Set Event Listeners
         setEventListeners();
 
-        mViewModel.fetchOngoingRide();
-        mViewModel.fetchNotifications();
+        fetchDashboardData();
     }
 
     private void initRecyclerView(ArrayList<Notification> notifications)
@@ -96,114 +104,101 @@ public class DashboardActivity extends DrawerBaseActivity {
     private void setEventListeners()
     {
         /* Set ongoing ride */
-        mViewModel.getRide().observe(DashboardActivity.this, new Observer<Ride>() {
-            @Override
-            public void onChanged(Ride ride) {
-                if(ride != null)
-                {
-                    ongoingRideCard.setVisibility(View.VISIBLE);
-                    noOngoingRideCard.setVisibility(View.GONE);
+        mViewModel.getRide().observe(DashboardActivity.this, ride -> {
+            if(ride != null)
+            {
+                ongoingRideCard.setVisibility(View.VISIBLE);
+                noOngoingRideCard.setVisibility(View.GONE);
 
-                    String base64 = ride.getClient().getAvatar();
-                    byte[] imageBytes = ImageConverter.convertBase64ToBytes(base64);
-                    Bitmap bmp = ImageConverter.convertBytesToBitmap(imageBytes);
+                String base64 = ride.getClient().getAvatar();
+                byte[] imageBytes = ImageConverter.convertBase64ToBytes(base64);
+                Bitmap bmp = ImageConverter.convertBytesToBitmap(imageBytes);
 
-                    clientAvatar.setImageBitmap(bmp);
-                    clientUsername.setText(ride.getClient().getEmail());
-                    // TODO: set rating
-                    clientRating.setText("0.0");
+                clientAvatar.setImageBitmap(bmp);
+                clientUsername.setText(ride.getClient().getEmail());
+                // TODO: set rating
+                clientRating.setText("0.0");
 
-                    setRideActionButtons(ride);
-                }
-                else
-                {
-                    ongoingRideCard.setVisibility(View.GONE);
-                    noOngoingRideCard.setVisibility(View.VISIBLE);
-                }
+                setRideActionButtons(ride);
+            }
+            else
+            {
+                ongoingRideCard.setVisibility(View.GONE);
+                noOngoingRideCard.setVisibility(View.VISIBLE);
             }
         });
 
-        mViewModel.getRideState().observe(DashboardActivity.this, new Observer<RequestState>() {
-            @Override
-            public void onChanged(RequestState requestState) {
-                Log.d(TAG, "onChanged: " + requestState);
-                switch (requestState)
-                {
-                    case ERROR:
-                        Snackbar.make(swipeRefreshLayout, "Couldn't connect to the server.", Snackbar.LENGTH_LONG)
-                                .setAction(R.string.try_again, new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        fetchDashboardData();
-                                    }
-                                }).show();
-                    case SUCCESS:
-                        isFetchingRide = false;
-                        if(!isFetchingNotifications)
-                        {
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                        break;
-                    case START:
-                        isFetchingRide = true;
-                        break;
-                }
+        mViewModel.getRideState().observe(DashboardActivity.this, requestState -> {
+            Log.d(TAG, "onChanged: " + requestState);
+            switch (requestState)
+            {
+                case ERROR:
+                    Snackbar.make(swipeRefreshLayout, "Couldn't connect to the server.", Snackbar.LENGTH_LONG)
+                            .setAction(R.string.try_again, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    fetchDashboardData();
+                                }
+                            }).show();
+                case SUCCESS:
+                    isFetchingRide = false;
+                    if(!isFetchingNotifications)
+                    {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                    break;
+                case START:
+                    isFetchingRide = true;
+                    break;
             }
         });
 
-        mViewModel.getNotificationsState().observe(DashboardActivity.this, new Observer<RequestState>() {
-            @Override
-            public void onChanged(RequestState requestState) {
-                Log.d(TAG, "onChanged: " + requestState);
-                switch (requestState)
-                {
-                    case ERROR:
-                    case SUCCESS:
-                        isFetchingNotifications = false;
-                        if(!isFetchingRide)
-                        {
-                            swipeRefreshLayout.setRefreshing(false);
-                        }
-                        break;
-                    case START:
-                        isFetchingNotifications = true;
-                        break;
-                }
+        mViewModel.getNotificationsState().observe(DashboardActivity.this, requestState -> {
+            Log.d(TAG, "onChanged: " + requestState);
+            switch (requestState)
+            {
+                case ERROR:
+                case SUCCESS:
+                    isFetchingNotifications = false;
+                    if(!isFetchingRide)
+                    {
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                    break;
+                case START:
+                    isFetchingNotifications = true;
+                    break;
             }
         });
 
         /* Set user notifications */
-        mViewModel.getNotifications().observe(DashboardActivity.this, new Observer<ArrayList<Notification>>() {
-            @Override
-            public void onChanged(ArrayList<Notification> notifications) {
-                if(notifications.size() == 0)
-                    noAvailableNotificationsTextView.setVisibility(View.VISIBLE);
-                initRecyclerView(notifications);
-            }
+        mViewModel.getNotifications().observe(DashboardActivity.this, notifications -> {
+            if(notifications.size() == 0)
+                noAvailableNotificationsTextView.setVisibility(View.VISIBLE);
+            initRecyclerView(new ArrayList<>(Lists.reverse(notifications)));
         });
 
+        /* Set today's statistics */
+        mViewModel.getTodayEarnings().observe(DashboardActivity.this, earnings -> totalEarningTextView.setText(String.format("$%.2f", earnings)));
+        mViewModel.getTodayRides().observe(DashboardActivity.this, rides -> ridesNumberTextView.setText(String.valueOf(rides)));
+        mViewModel.getTodayAccuracy().observe(DashboardActivity.this, accuracy -> averageAccuracyTextView.setText(String.format("%.2f", accuracy) + '%'));
+        mViewModel.getTodayDistance().observe(DashboardActivity.this, distance -> distanceTextView.setText(String.format("%.2f Km", distance)));
+
         /* On swipe refresh the content */
-        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                fetchDashboardData();
-            }
-        });
+        swipeRefreshLayout.setOnRefreshListener(() -> fetchDashboardData());
     }
 
     private void fetchDashboardData() {
         mViewModel.fetchOngoingRide();
         mViewModel.fetchNotifications();
+        mViewModel.fetchHistory();
     }
 
     private void setRideActionButtons(Ride ride) {
-        contactPhoneNumberButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(Intent.ACTION_DIAL);
-                intent.setData(Uri.parse("tel:" + ride.getClient().getPhoneNumber()));
-                startActivity(intent);
-            }
+        contactPhoneNumberButton.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:" + ride.getClient().getPhoneNumber()));
+            startActivity(intent);
         });
 
         contactChatButton.setOnClickListener(new View.OnClickListener() {

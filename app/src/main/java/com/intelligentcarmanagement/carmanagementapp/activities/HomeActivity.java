@@ -3,7 +3,6 @@ package com.intelligentcarmanagement.carmanagementapp.activities;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -17,9 +16,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -29,12 +25,10 @@ import android.os.Looper;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CompoundButton;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toolbar;
+import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -62,7 +56,7 @@ import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
-import com.google.android.material.switchmaterial.SwitchMaterial;
+import com.google.android.material.progressindicator.CircularProgressIndicator;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeoApiContext;
@@ -73,6 +67,8 @@ import com.google.maps.model.DirectionsStep;
 import com.google.maps.model.EncodedPolyline;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityHomeBinding;
+import com.intelligentcarmanagement.carmanagementapp.services.BroadcastLocationService;
+import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.HomeViewModel;
 
 import java.io.IOException;
@@ -88,6 +84,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
 
     private ActivityHomeBinding binding;
     private HomeViewModel mViewModel;
+    private BroadcastLocationService mLocationBroadcasterService;
 
     private GoogleMap mMap;
     private Geocoder geocoder;
@@ -106,9 +103,12 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
     private ImageView backButtonImage, searchButtonImage;
     private TextView targetDistanceTextView;
 
+    // Progress indicator
+    private CircularProgressIndicator mProgressIndicator;
+
     // Bottom controls
-    private TextView driverStateInfo;
-    private SwitchCompat driverState;
+    private TextView driverSwitchStateInfo;
+    private SwitchCompat driverSwitchState;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,8 +136,9 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         backButtonImage = findViewById(R.id.home_toolbar_back);
         searchButtonImage = findViewById(R.id.home_toolbar_search);
         targetDistanceTextView = findViewById(R.id.home_toolbar_target_distance);
-        driverState = findViewById(R.id.home_driver_state);
-        driverStateInfo = findViewById(R.id.home_driver_state_info);
+        driverSwitchState = findViewById(R.id.home_driver_state);
+        driverSwitchStateInfo = findViewById(R.id.home_driver_state_info);
+        mProgressIndicator = findViewById(R.id.home_progress_indicator);
 
         // set event listeners
         setEventListeners();
@@ -496,37 +497,49 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
                 finish();
             }
         });
+
         // Init driver state
-        mViewModel.isAvailable().observe(HomeActivity.this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean aBoolean) {
-                Log.d(TAG, "onChanged: Is available: " + aBoolean);
-                driverState.setChecked(aBoolean);
-                driverStateInfo.setText(aBoolean ? "Available" : "Not available");
+        mViewModel.isAvailable().observe(HomeActivity.this, aBoolean -> {
+            Log.d(TAG, "onChanged: Is available: " + aBoolean);
+            driverSwitchState.setChecked(aBoolean);
+            driverSwitchStateInfo.setText(aBoolean ? "Available" : "Not available");
+        });
+
+        // Check the state of the make available request
+        mViewModel.availabilityState().observe(HomeActivity.this, requestState -> {
+            driverSwitchState.setClickable(true);
+            switch (requestState)
+            {
+                case ERROR:
+                    mProgressIndicator.setVisibility(View.GONE);
+                    Toast.makeText(HomeActivity.this, "Failed to make available.", Toast.LENGTH_LONG);
+                    break;
+                case SUCCESS:
+                    mProgressIndicator.setVisibility(View.GONE);
+                    break;
+                case START:
+                    mProgressIndicator.setVisibility(View.VISIBLE);
+                    mProgressIndicator.bringToFront();
+                    break;
             }
         });
+
         // Switch driver state
-        driverState.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
-                if(b == true)
-                {
-                    mViewModel.makeDriverAvailable(true);
-                    // TODO: share location and make driver available here
-                }
-                else
-                {
-                    mViewModel.makeDriverAvailable(false);
-                    // TODO: stop sharing location and make driver unavailable here
-                }
+        driverSwitchState.setOnCheckedChangeListener((compoundButton, b) -> {
+            driverSwitchState.setClickable(false);
+            if(b == true)
+            {
+                mViewModel.makeDriverAvailable(true);
+                startService(new Intent(HomeActivity.this, BroadcastLocationService.class));
+            }
+            else
+            {
+                mViewModel.makeDriverAvailable(false);
+                stopService(new Intent(HomeActivity.this, BroadcastLocationService.class));
             }
         });
+
         // Search place button
-        searchButtonImage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                searchPlace();
-            }
-        });
+        searchButtonImage.setOnClickListener(view -> searchPlace());
     }
 }

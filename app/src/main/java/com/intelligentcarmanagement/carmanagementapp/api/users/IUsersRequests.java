@@ -5,6 +5,7 @@ import com.intelligentcarmanagement.carmanagementapp.models.User;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
+import retrofit2.http.Header;
 import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Query;
@@ -18,4 +19,7 @@ public interface IUsersRequests {
 
     @PUT("/api/Drivers/availability")
     Call<Boolean> makeAvailable(@Query("id") int id, @Query("isAvailable") boolean isAvailable);
+
+    @PUT("/api/Drivers/location")
+    Call<Void> updateLocation(@Header("authorization") String token, @Query("id") int id, @Query("latitude") String latitude, @Query("longitude") String longitude);
 }

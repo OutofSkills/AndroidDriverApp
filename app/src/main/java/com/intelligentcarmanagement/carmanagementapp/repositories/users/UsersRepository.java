@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.repositories;
+package com.intelligentcarmanagement.carmanagementapp.repositories.users;
 
 import android.util.Log;
 
@@ -6,7 +6,8 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.intelligentcarmanagement.carmanagementapp.api.RetrofitService;
-import com.intelligentcarmanagement.carmanagementapp.api.users.IMakeAvailableResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IMakeAvailableResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IUpdateLocation;
 import com.intelligentcarmanagement.carmanagementapp.models.login.LoginRequest;
 import com.intelligentcarmanagement.carmanagementapp.models.login.LoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.models.User;
@@ -14,8 +15,8 @@ import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerErrorRe
 import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerValidationError;
 import com.intelligentcarmanagement.carmanagementapp.api.login.ILoginResponse;
 import com.intelligentcarmanagement.carmanagementapp.api.login.ILoginRequests;
-import com.intelligentcarmanagement.carmanagementapp.api.users.IGetUserResponse;
-import com.intelligentcarmanagement.carmanagementapp.api.users.IUpdateUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IGetUserResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IUpdateUserResponse;
 import com.intelligentcarmanagement.carmanagementapp.api.users.IUsersRequests;
 
 import java.io.IOException;
@@ -24,9 +25,9 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class UsersRepo {
+public class UsersRepository implements IUsersRepository{
 
-    private static final String TAG = "UsersRepo";
+    private static final String TAG = "UsersRepository";
 
     public void loginRemote(LoginRequest loginRequest, ILoginResponse loginResponse) {
         ILoginRequests loginService = RetrofitService.getRetrofit().create(ILoginRequests.class);
@@ -160,6 +161,24 @@ public class UsersRepo {
             @Override
             public void onFailure(Call<Boolean> call, Throwable t) {
                 makeAvailableResponse.onFailure(t);
+            }
+        });
+    }
+
+    @Override
+    public void updateLocation(String token, int id, String latitude, String longitude, IUpdateLocation updateLocationResponse) {
+        IUsersRequests usersRequests = RetrofitService.getRetrofit().create(IUsersRequests.class);
+        Call<Void> initRequest = usersRequests.updateLocation(token, id, latitude, longitude);
+
+        initRequest.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                updateLocationResponse.onResponse();
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                updateLocationResponse.onFailure(t);
             }
         });
     }

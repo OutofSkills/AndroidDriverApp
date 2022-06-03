@@ -90,7 +90,11 @@ public class DashboardActivity extends DrawerBaseActivity {
 
         // Set Event Listeners
         setEventListeners();
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         fetchDashboardData();
     }
 

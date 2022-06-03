@@ -8,7 +8,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IMakeAvailableResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IAvailableResponse;
 import com.intelligentcarmanagement.carmanagementapp.repositories.users.UsersRepository;
 import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
@@ -25,9 +25,6 @@ public class HomeViewModel extends AndroidViewModel {
         super(application);
         mSessionManager = new SessionManager(application);
         mUsersRepository = new UsersRepository();
-        mAvailabilityLiveData.setValue(Boolean.valueOf(mSessionManager
-                .getUserData()
-                .get(SessionManager.KEY_AVAILABILITY)));
     }
 
     public void makeDriverAvailable(boolean availability)
@@ -35,11 +32,32 @@ public class HomeViewModel extends AndroidViewModel {
         mAvailabilityStateLiveData.setValue(RequestState.START);
         String driverId = mSessionManager.getUserData().get(SessionManager.KEY_ID);
 
-        mUsersRepository.makeAvailable(Integer.valueOf(driverId), availability, new IMakeAvailableResponse() {
+        mUsersRepository.makeAvailable(Integer.valueOf(driverId), availability, new IAvailableResponse() {
             @Override
             public void onResponse(boolean response) {
                 Log.d(TAG, "onResponse: driver available.");
-                mSessionManager.changeAvailability(response);
+                mAvailabilityLiveData.setValue(response);
+                mAvailabilityStateLiveData.setValue(RequestState.SUCCESS);
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "onFailure: Error: " + t.getMessage());
+                mAvailabilityStateLiveData.setValue(RequestState.ERROR);
+            }
+        });
+    }
+
+    public void fetchAvailability()
+    {
+        mAvailabilityStateLiveData.setValue(RequestState.START);
+        String jwtToken = mSessionManager.getUserData().get(SessionManager.KEY_JWT_TOKEN);
+        String driverId = mSessionManager.getUserData().get(SessionManager.KEY_ID);
+
+        mUsersRepository.isAvailable(jwtToken, Integer.parseInt(driverId), new IAvailableResponse() {
+            @Override
+            public void onResponse(boolean response) {
+                Log.d(TAG, "onResponse: driver available.");
                 mAvailabilityLiveData.setValue(response);
                 mAvailabilityStateLiveData.setValue(RequestState.SUCCESS);
             }

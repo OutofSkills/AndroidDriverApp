@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.intelligentcarmanagement.carmanagementapp.api.RetrofitService;
-import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IMakeAvailableResponse;
+import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IAvailableResponse;
 import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IUpdateLocation;
 import com.intelligentcarmanagement.carmanagementapp.models.login.LoginRequest;
 import com.intelligentcarmanagement.carmanagementapp.models.login.LoginResponse;
@@ -136,7 +136,7 @@ public class UsersRepository implements IUsersRepository{
         });
     }
 
-    public void makeAvailable(int id, boolean isAvailable, IMakeAvailableResponse makeAvailableResponse)
+    public void makeAvailable(int id, boolean isAvailable, IAvailableResponse makeAvailableResponse)
     {
         IUsersRequests usersService = RetrofitService.getRetrofit().create(IUsersRequests.class);
         Call<Boolean> initRequest = usersService.makeAvailable(id, isAvailable);
@@ -161,6 +161,33 @@ public class UsersRepository implements IUsersRepository{
             @Override
             public void onFailure(Call<Boolean> call, Throwable t) {
                 makeAvailableResponse.onFailure(t);
+            }
+        });
+    }
+
+    @Override
+    public void isAvailable(String token, int id, IAvailableResponse isAvailableResponse) {
+        IUsersRequests usersService = RetrofitService.getRetrofit().create(IUsersRequests.class);
+        Call<Boolean> initRequest = usersService.isAvailable(token, id);
+
+        initRequest.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if(response.isSuccessful()) {
+                    isAvailableResponse.onResponse(response.body());
+                }else {
+                    try {
+                        isAvailableResponse.onFailure(new Throwable(response.errorBody().string()));
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        isAvailableResponse.onFailure(new Throwable(e.getMessage()));
+                    }
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                isAvailableResponse.onFailure(t);
             }
         });
     }

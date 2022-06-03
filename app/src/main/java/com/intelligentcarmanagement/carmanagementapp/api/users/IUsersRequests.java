@@ -20,6 +20,9 @@ public interface IUsersRequests {
     @PUT("/api/Drivers/availability")
     Call<Boolean> makeAvailable(@Query("id") int id, @Query("isAvailable") boolean isAvailable);
 
+    @GET("/api/Drivers/availability")
+    Call<Boolean> isAvailable(@Header("authorization") String token, @Query("id") int id);
+
     @PUT("/api/Drivers/location")
     Call<Void> updateLocation(@Header("authorization") String token, @Query("id") int id, @Query("latitude") String latitude, @Query("longitude") String longitude);
 }

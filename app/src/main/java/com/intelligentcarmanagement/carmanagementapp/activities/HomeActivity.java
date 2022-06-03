@@ -206,8 +206,8 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
             userLocationMarker.setPosition(latLng);
             userLocationMarker.setRotation(location.getBearing());
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+            updateCameraBearing(mMap, location.getBearing());
         }
-        updateCameraBearing(mMap, location.getBearing());
 
         if (userLocationAccuracyCircle == null) {
             CircleOptions circleOptions = new CircleOptions();
@@ -307,9 +307,11 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
     protected void onStart() {
         super.onStart();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mViewModel.fetchAvailability();
             startLocationUpdates();
         } else {
             // you need to request permissions...
+            Log.d(TAG, "onStart: No permissions!");
         }
     }
 
@@ -331,7 +333,7 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
             @Override
             public void onSuccess(Location location) {
                 LatLng latLng = new LatLng(location.getLatitude(), location.getLongitude());
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 17));
 //                mMap.addMarker(new MarkerOptions().position(latLng));
             }
         });

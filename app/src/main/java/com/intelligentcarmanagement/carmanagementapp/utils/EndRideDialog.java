@@ -40,9 +40,8 @@ public class EndRideDialog {
 
         dateTextView.setText(stringDate);
 
-        // TODO: implement income
         TextView incomeTextView = (TextView) dialog.findViewById(R.id.completed_ride_total_income);
-        incomeTextView.setText("$10");
+        incomeTextView.setText(String.format("$ %.2", viewModel.getRide().getValue().getPrice()));
 
         // Pick-up place
         TextView pickUpTextView = (TextView) dialog.findViewById(R.id.completed_ride_pick_up);
@@ -62,7 +61,7 @@ public class EndRideDialog {
                 Double.valueOf(viewModel.getRide().getValue().getDestinationPlaceLong())
         );
 
-        distanceTextView.setText(String.format("%.2f", distance));
+        distanceTextView.setText(String.format("%.2fKm", distance));
 
         // Client avatar
         ShapeableImageView clientAvatar = dialog.findViewById(R.id.completed_ride_client_avatar);

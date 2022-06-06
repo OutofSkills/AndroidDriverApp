@@ -9,7 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.intelligentcarmanagement.carmanagementapp.repositories.users.UsersRepository;
 import com.intelligentcarmanagement.carmanagementapp.utils.ImageConverter;
-import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 
 import java.util.HashMap;
 

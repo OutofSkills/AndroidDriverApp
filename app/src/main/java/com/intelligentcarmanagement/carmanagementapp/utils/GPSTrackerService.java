@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.services;
+package com.intelligentcarmanagement.carmanagementapp.utils;
 
 import android.Manifest;
 import android.app.Activity;
@@ -16,10 +16,7 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
-
-import com.google.android.gms.maps.model.LatLng;
 
 public class GPSTrackerService extends Service implements LocationListener{
    private final Context mContext;

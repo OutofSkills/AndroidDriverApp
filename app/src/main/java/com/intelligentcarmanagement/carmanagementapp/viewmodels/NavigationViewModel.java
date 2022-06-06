@@ -8,16 +8,20 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.intelligentcarmanagement.carmanagementapp.api.reviews.IRateClient;
-import com.intelligentcarmanagement.carmanagementapp.api.reviews.IReviewRequests;
+import com.intelligentcarmanagement.carmanagementapp.api.reviews.IRateResponse;
 import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetRide;
+import com.intelligentcarmanagement.carmanagementapp.database.DatabaseHelper;
+import com.intelligentcarmanagement.carmanagementapp.models.DrivingBehaviorEvent;
 import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.repositories.reviews.IReviewsRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.reviews.ReviewsRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.IRidesRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.RidesRepository;
-import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
+
+import java.text.ParseException;
+import java.util.List;
 
 public class NavigationViewModel extends AndroidViewModel {
     private static final String TAG = "NavigationViewModel";
@@ -26,14 +30,19 @@ public class NavigationViewModel extends AndroidViewModel {
     private MutableLiveData<RequestState> mStartRideStateLiveData = new MutableLiveData<>();
     private MutableLiveData<RequestState> mEndRideStateLiveData = new MutableLiveData<>();
 
+    private float mRideAccuracy = 0;
+
     private SessionManager mSessionManager;
+    private DatabaseHelper mDbHelper;
     private IRidesRepository mRidesRepository;
     private IReviewsRepository mReviewsRepository;
+
 
     public NavigationViewModel(@NonNull Application application) {
         super(application);
 
         mSessionManager = new SessionManager(application);
+        mDbHelper = new DatabaseHelper(application);
         mRidesRepository = new RidesRepository();
         mReviewsRepository = new ReviewsRepository();
     }
@@ -105,7 +114,7 @@ public class NavigationViewModel extends AndroidViewModel {
         int rideId = mOngoingRideLiveData.getValue().getId();
         String jwtToken = mSessionManager.getUserData().get(SessionManager.KEY_JWT_TOKEN);
 
-        mReviewsRepository.rateClient(jwtToken, rideId, rating, new IRateClient() {
+        mReviewsRepository.rateClient(jwtToken, rideId, rating, new IRateResponse() {
             @Override
             public void onResponse() {
                 Log.d(TAG, "Successfully rated.");
@@ -116,6 +125,51 @@ public class NavigationViewModel extends AndroidViewModel {
                 Log.d(TAG, "Failed to rate: " + t.getMessage());
             }
         });
+    }
+
+    public void evaluateRide(){
+        int rideId = mOngoingRideLiveData.getValue().getId();
+        String jwtToken = mSessionManager.getUserData().get(SessionManager.KEY_JWT_TOKEN);
+
+        // Compute accuracy
+        mRideAccuracy = computeAccuracy();
+
+        Log.d(TAG, "evaluateRide: rideID: " + rideId + ", accuracy: " + mRideAccuracy);
+
+        mReviewsRepository.evaluateRide(jwtToken, rideId, mRideAccuracy, new IRateResponse() {
+            @Override
+            public void onResponse() {
+                Log.d(TAG, "Successfully evaluated.");
+            }
+
+            @Override
+            public void onFailure(Throwable t) {
+                Log.d(TAG, "Failed to evaluate: " + t.getMessage());
+            }
+        });
+    }
+
+    private float computeAccuracy() {
+        float accuracy = 0;
+
+        List<DrivingBehaviorEvent> results = null;
+        try {
+            results = mDbHelper.getResults();
+            mDbHelper.clearResultsTable();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if(results != null)
+        {
+            float normalRate = 0;
+            for (DrivingBehaviorEvent event:results) {
+                normalRate += event.getNormal();
+            }
+            accuracy = normalRate/results.size();
+        }
+
+        return accuracy;
     }
 
     public LiveData<Ride> getRide()
@@ -136,5 +190,9 @@ public class NavigationViewModel extends AndroidViewModel {
     public LiveData<RequestState> getEndRideState()
     {
         return mEndRideStateLiveData;
+    }
+
+    public float getRideAccuracy(){
+        return mRideAccuracy;
     }
 }

@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.services;
+package com.intelligentcarmanagement.carmanagementapp.utils;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,13 +10,13 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MotionCollectorService {
+public class MotionCollector {
     private Context context;
     private DatabaseHelper dbHelper;
 
-    public MotionCollectorService(){};
+    public MotionCollector(){};
 
-    public MotionCollectorService(Context context)
+    public MotionCollector(Context context)
     {
         this.context = context;
         dbHelper = new DatabaseHelper(context);

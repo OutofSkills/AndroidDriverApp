@@ -16,7 +16,7 @@ import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IGetUse
 import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IUpdateUserResponse;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.IRidesRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.RidesRepository;
-import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class ProfileViewModel extends AndroidViewModel {
     private MutableLiveData<Boolean> mUpdatingMutableLiveData = new MutableLiveData<>();
 
     private MutableLiveData<RequestState> mRatingStateLiveData = new MutableLiveData<>();
-    private MutableLiveData<Double> mRatingMutableLiveData = new MutableLiveData<>();
+//    private MutableLiveData<Double> mRatingMutableLiveData = new MutableLiveData<>();
     private MutableLiveData<Integer> mRidesMutableLiveData = new MutableLiveData<>();
 
     private UsersRepository mUsersRepository;
@@ -64,7 +64,7 @@ public class ProfileViewModel extends AndroidViewModel {
                     }
                 }
 
-                mRatingMutableLiveData.setValue(rating/ratedRides);
+//                mRatingMutableLiveData.setValue(rating/ratedRides);
                 mRidesMutableLiveData.setValue(historyRides.size());
                 mRatingStateLiveData.setValue(RequestState.SUCCESS);
             }
@@ -82,9 +82,9 @@ public class ProfileViewModel extends AndroidViewModel {
         return mRidesMutableLiveData;
     }
 
-    public LiveData<Double> getRating(){
-        return mRatingMutableLiveData;
-    }
+//    public LiveData<Double> getRating(){
+//        return mRatingMutableLiveData;
+//    }
 
     public void fetchUser(){
         String email = mSessionManager.getUserData().get(mSessionManager.KEY_EMAIL);

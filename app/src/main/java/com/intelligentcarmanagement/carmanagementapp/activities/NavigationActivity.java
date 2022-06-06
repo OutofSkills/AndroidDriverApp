@@ -60,6 +60,7 @@ import com.google.maps.model.DirectionsRoute;
 import com.google.maps.model.DirectionsStep;
 import com.google.maps.model.EncodedPolyline;
 import com.intelligentcarmanagement.carmanagementapp.R;
+import com.intelligentcarmanagement.carmanagementapp.services.DrivingMotionService;
 import com.intelligentcarmanagement.carmanagementapp.utils.EndRideDialog;
 import com.intelligentcarmanagement.carmanagementapp.utils.HaversineAlgorithm;
 import com.intelligentcarmanagement.carmanagementapp.viewmodels.NavigationViewModel;
@@ -135,8 +136,8 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
         // Set-up GPS
         locationRequest = LocationRequest.create();
         locationRequest.setSmallestDisplacement(10);
-        locationRequest.setInterval(100);
-        locationRequest.setFastestInterval(100);
+        locationRequest.setInterval(1000);
+        locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
         // Set event listeners
@@ -171,7 +172,6 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
                     endRideButton.setVisibility(View.VISIBLE);
                 }
                 else {
-                    // TODO: Handle possible error
                     endRideButton.setEnabled(false);
                     updateNavigationPanels("-", "-", "-");
                 }
@@ -186,10 +186,17 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
         });
 
         // Start ride button action
-        startRideButton.setOnClickListener(view -> viewModel.startRide());
+        startRideButton.setOnClickListener(view -> {
+            viewModel.startRide();
+            startService(new Intent(NavigationActivity.this, DrivingMotionService.class));
+        });
 
         // End ride button action
-        endRideButton.setOnClickListener(view -> viewModel.endRide());
+        endRideButton.setOnClickListener(view -> {
+            viewModel.endRide();
+            viewModel.evaluateRide();
+            stopService(new Intent(NavigationActivity.this, DrivingMotionService.class));
+        });
 
         viewModel.getStartRideState().observe(NavigationActivity.this, requestState -> {
             switch (requestState)

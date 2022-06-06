@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.services;
+package com.intelligentcarmanagement.carmanagementapp.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

@@ -74,20 +74,21 @@ public class EndRideDialog {
         TextView clientRateName = dialog.findViewById(R.id.completed_ride_client_rate_name);
         clientRateName.setText("Would you like to rate " + viewModel.getRide().getValue().getClient().getLastName() + " ?");
 
+        // Ride accuracy
+        TextView rideAccuracyTextView = dialog.findViewById(R.id.completed_ride_accuracy);
+        float accuracy = viewModel.getRideAccuracy();
+        rideAccuracyTextView.setText(String.format("%.2f", accuracy + '%'));
 
         // Rating bar
         RatingBar ratingBar = dialog.findViewById(R.id.completed_ride_rating);
 
         Button dialogSubmitButton = (Button) dialog.findViewById(R.id.completed_ride_end_button);
 
-        dialogSubmitButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                viewModel.rateRide(ratingBar.getRating());
-                dialog.dismiss();
-                activity.startActivity(new Intent(activity, HomeActivity.class));
-                activity.finish();
-            }
+        dialogSubmitButton.setOnClickListener(v -> {
+            viewModel.rateRide(ratingBar.getRating());
+            dialog.dismiss();
+            activity.startActivity(new Intent(activity, HomeActivity.class));
+            activity.finish();
         });
 
         Button dialogSkipButton = (Button) dialog.findViewById(R.id.completed_ride_skip_button);

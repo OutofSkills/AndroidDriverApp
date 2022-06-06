@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IAvailableResponse;
 import com.intelligentcarmanagement.carmanagementapp.repositories.users.UsersRepository;
-import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 
 public class HomeViewModel extends AndroidViewModel {

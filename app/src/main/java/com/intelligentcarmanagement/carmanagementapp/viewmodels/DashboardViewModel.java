@@ -17,7 +17,7 @@ import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.
 import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.NotificationsRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.IRidesRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.RidesRepository;
-import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 
 import java.util.ArrayList;

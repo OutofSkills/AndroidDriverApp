@@ -25,7 +25,7 @@ import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.
 import com.intelligentcarmanagement.carmanagementapp.repositories.notifications.NotificationsRepository;
 import com.intelligentcarmanagement.carmanagementapp.utils.JwtParser;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
-import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package com.intelligentcarmanagement.carmanagementapp.services;
+package com.intelligentcarmanagement.carmanagementapp.utils;
 
 import static androidx.core.content.ContextCompat.getSystemService;
 

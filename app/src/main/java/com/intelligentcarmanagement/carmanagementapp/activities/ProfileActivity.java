@@ -175,11 +175,6 @@ public class ProfileActivity extends DrawerBaseActivity {
         });
 
         // Get rides to compute the rating
-        profileViewModel.getRating().observe(ProfileActivity.this, aDouble -> {
-            profileRating.setText(String.format("%.1f/5", aDouble));
-        });
-
-        // Get rides to compute the rating
         profileViewModel.getRidesNumber().observe(ProfileActivity.this, number -> {
             profileRidesNumber.setText(String.valueOf(number));
         });
@@ -262,6 +257,7 @@ public class ProfileActivity extends DrawerBaseActivity {
             profileFirstName.setText(user.getFirstName());
             profileLastName.setText(user.getLastName());
             profilePhoneNumber.setText(user.getPhoneNumber());
+            profileRating.setText(String.format("%.1f/5", user.getRating()));
 
             // Edit texts
             profileAddressEdit.setText("Not specified yet");

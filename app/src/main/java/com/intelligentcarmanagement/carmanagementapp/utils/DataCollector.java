@@ -30,6 +30,7 @@ public class DataCollector implements SensorEventListener {
 
     /* Data collection objects */
     private Motion mMotion;
+    private List<Motion> mMotionList;
     MutableLiveData<Motion> mMotionLiveData = new MutableLiveData<>();
 
 
@@ -39,6 +40,7 @@ public class DataCollector implements SensorEventListener {
         mGyroscopeSensor = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
 
         mMotion = new Motion();
+        mMotionList = new ArrayList<>();
     }
 
     @Override
@@ -62,6 +64,7 @@ public class DataCollector implements SensorEventListener {
 
             mMotion.setTimestamp(TimeUnit.NANOSECONDS.toSeconds(currentTimestamp));
             mMotionLiveData.setValue(mMotion);
+            mMotionList.add(mMotion);
         }
 
     }
@@ -93,5 +96,13 @@ public class DataCollector implements SensorEventListener {
 
     public LiveData<Motion> getCollectedData(){
         return mMotionLiveData;
+    }
+
+    public List<Motion> getCollectedDataList() {
+        return mMotionList;
+    }
+
+    public void clearCollectedDataList(){
+        mMotionList.clear();
     }
 }

@@ -5,8 +5,8 @@ import android.util.Log;
 
 import androidx.lifecycle.AndroidViewModel;
 
-import com.intelligentcarmanagement.carmanagementapp.services.TokenService;
-import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.utils.TokenService;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 
 import java.util.Map;
 

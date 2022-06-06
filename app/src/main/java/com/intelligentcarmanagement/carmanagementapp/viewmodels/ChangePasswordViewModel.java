@@ -12,7 +12,7 @@ import com.intelligentcarmanagement.carmanagementapp.models.errors.ServerValidat
 import com.intelligentcarmanagement.carmanagementapp.models.account.ChangePasswordDTO;
 import com.intelligentcarmanagement.carmanagementapp.repositories.AccountRepo;
 import com.intelligentcarmanagement.carmanagementapp.api.account.IPasswordChangeResponse;
-import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 
 import java.util.ArrayList;
 import java.util.List;

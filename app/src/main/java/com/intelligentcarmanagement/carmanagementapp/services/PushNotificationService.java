@@ -1,17 +1,12 @@
 package com.intelligentcarmanagement.carmanagementapp.services;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.NotificationManagerCompat;
 
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
-import com.intelligentcarmanagement.carmanagementapp.R;
+import com.intelligentcarmanagement.carmanagementapp.utils.NotificationsManager;
 
 public class PushNotificationService extends FirebaseMessagingService {
     private static final String TAG = "PushNotificationService";

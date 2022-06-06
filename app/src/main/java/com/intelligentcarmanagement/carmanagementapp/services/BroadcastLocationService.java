@@ -3,17 +3,12 @@ package com.intelligentcarmanagement.carmanagementapp.services;
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.location.LocationManager;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.Toast;
-
-import androidx.appcompat.app.AlertDialog;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -24,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.intelligentcarmanagement.carmanagementapp.api.users.responses.IUpdateLocation;
 import com.intelligentcarmanagement.carmanagementapp.repositories.users.IUsersRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.users.UsersRepository;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 
 public class BroadcastLocationService extends Service {
 
@@ -51,6 +47,7 @@ public class BroadcastLocationService extends Service {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         locationRequest = LocationRequest.create();
+        locationRequest.setSmallestDisplacement(10);
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(5000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);

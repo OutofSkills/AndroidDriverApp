@@ -5,9 +5,11 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import androidx.annotation.Nullable;
 
+import com.intelligentcarmanagement.carmanagementapp.models.DrivingBehaviorEvent;
 import com.intelligentcarmanagement.carmanagementapp.models.utils.Motion;
 
 import java.text.ParseException;
@@ -17,6 +19,8 @@ import java.util.Date;
 import java.util.List;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
+    private static final String TAG = "DatabaseHelper";
+
     // database details
     private static final String DB_NAME = "carmng.db";
     private static final int DB_VERSION = 1;
@@ -33,6 +37,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String COLUMN_CLASS = "Class";
     private static final String COLUMN_TIME_STAMP = "TimeStamp";
 
+    // Results table
+    private static final String RESULTS_TABLE = "Results";
+    private static final String COLUMN_RESULTS_ID = "Id";
+    private static final String COLUMN_RESULTS_NORMAL = "Normal";
+    private static final String COLUMN_RESULTS_AGGRESSIVE = "Aggressive";
+
     public DatabaseHelper(@Nullable Context context) {
         super(context, DB_NAME, null, DB_VERSION);
     }
@@ -46,11 +56,79 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 COLUMN_TIME_STAMP + " INTEGER, " + COLUMN_CLASS + " TEXT )";
 
         db.execSQL(createMotionTable);
+
+        String createResultsTable = "CREATE TABLE " + RESULTS_TABLE + "("+ COLUMN_RESULTS_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                COLUMN_RESULTS_NORMAL + " REAL, " + COLUMN_RESULTS_AGGRESSIVE + " REAL)";
+
+        db.execSQL(createResultsTable);
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
 
+    }
+
+    public boolean InsertResult(DrivingBehaviorEvent event)
+    {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues cv = new ContentValues();
+
+        cv.put(COLUMN_RESULTS_NORMAL, event.getNormal());
+        cv.put(COLUMN_RESULTS_AGGRESSIVE, event.getAggressive());
+
+        long result = db.insert(RESULTS_TABLE, null, cv);
+
+        db.close();
+
+        if(result == -1)
+            return false;
+
+        return true;
+    }
+
+    public List<DrivingBehaviorEvent> getResults() throws ParseException {
+        List<DrivingBehaviorEvent> returnList = new ArrayList<>();
+
+        String queryString = "SELECT* FROM " + RESULTS_TABLE;
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(queryString, null);
+
+        if(cursor.moveToFirst())
+        {
+            // loop through the cursor (result set) and create a list of motion objects
+            do {
+                float normal = cursor.getFloat(1);
+                float aggressive = cursor.getFloat(2);
+
+                DrivingBehaviorEvent event = new DrivingBehaviorEvent(aggressive, normal);
+                returnList.add(event);
+            }while (cursor.moveToNext());
+        }
+        else
+        {
+            // failure, we have nothing in the list
+            Log.d(TAG, "GetResults: empty.");
+        }
+
+        cursor.close();
+        db.close();
+
+        return returnList;
+    }
+
+    public void clearResultsTable()
+    {
+        //Open the database
+        SQLiteDatabase database = this.getWritableDatabase();
+
+        //Execute sql query to remove from database
+        //NOTE: When removing by String in SQL, value must be enclosed with ''
+        database.execSQL("DELETE FROM " + RESULTS_TABLE);
+
+        //Close the database
+        database.close();
     }
 
     public boolean InsertMotion(Motion motion)

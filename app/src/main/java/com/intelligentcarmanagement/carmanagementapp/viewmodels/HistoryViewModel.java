@@ -12,7 +12,7 @@ import com.intelligentcarmanagement.carmanagementapp.api.rides.responses.IGetRid
 import com.intelligentcarmanagement.carmanagementapp.models.ride.Ride;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.IRidesRepository;
 import com.intelligentcarmanagement.carmanagementapp.repositories.rides.RidesRepository;
-import com.intelligentcarmanagement.carmanagementapp.services.SessionManager;
+import com.intelligentcarmanagement.carmanagementapp.utils.SessionManager;
 import com.intelligentcarmanagement.carmanagementapp.utils.RequestState;
 
 import java.util.ArrayList;

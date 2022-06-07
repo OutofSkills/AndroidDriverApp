@@ -120,8 +120,7 @@ public class DashboardActivity extends DrawerBaseActivity {
 
                 clientAvatar.setImageBitmap(bmp);
                 clientUsername.setText(ride.getClient().getEmail());
-                // TODO: set rating
-                clientRating.setText("0.0");
+                clientRating.setText(String.format("%.2f", ride.getClient().getRating()));
 
                 setRideActionButtons(ride);
             }
@@ -138,12 +137,7 @@ public class DashboardActivity extends DrawerBaseActivity {
             {
                 case ERROR:
                     Snackbar.make(swipeRefreshLayout, "Couldn't connect to the server.", Snackbar.LENGTH_LONG)
-                            .setAction(R.string.try_again, new View.OnClickListener() {
-                                @Override
-                                public void onClick(View view) {
-                                    fetchDashboardData();
-                                }
-                            }).show();
+                            .setAction(R.string.try_again, view -> fetchDashboardData()).show();
                 case SUCCESS:
                     isFetchingRide = false;
                     if(!isFetchingNotifications)
@@ -225,10 +219,8 @@ public class DashboardActivity extends DrawerBaseActivity {
         Intent intent = new Intent(DashboardActivity.this, NavigationActivity.class);
 
         /*
-        * Put extra ride details like
-        * pick-up location, destination, client name..
+        * Put extra ride details like id
         */
-
         int rideId = ride.getId();
         intent.putExtra("rideId", rideId);
 

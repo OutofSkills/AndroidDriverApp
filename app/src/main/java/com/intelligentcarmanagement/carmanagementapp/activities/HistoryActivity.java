@@ -51,38 +51,27 @@ public class HistoryActivity extends DrawerBaseActivity {
     }
 
     private void setEventListeners() {
-        mHistoryViewModel.getRides().observe(HistoryActivity.this, new Observer<ArrayList<Ride>>() {
-            @Override
-            public void onChanged(ArrayList<Ride> rides) {
-                initRecyclerView(rides);
+        mHistoryViewModel.getRides().observe(HistoryActivity.this, rides -> initRecyclerView(rides));
+
+        mHistoryViewModel.getProcessingState().observe(HistoryActivity.this, state -> {
+            switch (state){
+                case ERROR:
+                    break;
+                case SUCCESS:
+                    Log.d(TAG, "onChanged: done");
+                    mProgressIndicator.setVisibility(View.GONE);
+                    break;
+                case START:
+                    Log.d(TAG, "onChanged: start");
+                    mProgressIndicator.setVisibility(View.VISIBLE);
+                    mProgressIndicator.bringToFront();
+                    break;
             }
         });
 
-        mHistoryViewModel.getProcessingState().observe(HistoryActivity.this, new Observer<RequestState>() {
-            @Override
-            public void onChanged(RequestState state) {
-                switch (state){
-                    case ERROR:
-                        break;
-                    case SUCCESS:
-                        Log.d(TAG, "onChanged: done");
-                        mProgressIndicator.setVisibility(View.GONE);
-                        break;
-                    case START:
-                        Log.d(TAG, "onChanged: start");
-                        mProgressIndicator.setVisibility(View.VISIBLE);
-                        mProgressIndicator.bringToFront();
-                        break;
-                }
-            }
-        });
-
-        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                refreshLayout.setRefreshing(false);
-                mHistoryViewModel.getHistory();
-            }
+        refreshLayout.setOnRefreshListener(() -> {
+            refreshLayout.setRefreshing(false);
+            mHistoryViewModel.getHistory();
         });
     }
 

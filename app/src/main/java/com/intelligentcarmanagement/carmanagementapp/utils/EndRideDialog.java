@@ -41,7 +41,7 @@ public class EndRideDialog {
         dateTextView.setText(stringDate);
 
         TextView incomeTextView = (TextView) dialog.findViewById(R.id.completed_ride_total_income);
-        incomeTextView.setText(String.format("$ %.2", viewModel.getRide().getValue().getPrice()));
+        incomeTextView.setText(new StringBuilder().append('$').append(String.format("%.2f", +viewModel.getRide().getValue().getPrice())).toString());
 
         // Pick-up place
         TextView pickUpTextView = (TextView) dialog.findViewById(R.id.completed_ride_pick_up);
@@ -76,7 +76,7 @@ public class EndRideDialog {
         // Ride accuracy
         TextView rideAccuracyTextView = dialog.findViewById(R.id.completed_ride_accuracy);
         float accuracy = viewModel.getRideAccuracy();
-        rideAccuracyTextView.setText(String.format("%.2f", accuracy + '%'));
+        rideAccuracyTextView.setText(new StringBuilder().append(String.format("%.2f", accuracy)).append('%').toString());
 
         // Rating bar
         RatingBar ratingBar = dialog.findViewById(R.id.completed_ride_rating);

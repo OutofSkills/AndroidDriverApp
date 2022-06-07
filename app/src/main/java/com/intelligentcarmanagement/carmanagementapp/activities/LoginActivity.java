@@ -6,6 +6,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -64,72 +65,48 @@ public class LoginActivity extends AppCompatActivity {
         emailEditText.addTextChangedListener(new ValidationTextWatcher(emailEditText, emailEditTextLayout));
         passwordEditText.addTextChangedListener(new ValidationTextWatcher(passwordEditText, passwordEditTextLayout));
 
+        setEventListeners();
+    }
 
-        // Testing---
-        FirebaseMessaging.getInstance().getToken()
-                .addOnCompleteListener(new OnCompleteListener<String>() {
-                    @Override
-                    public void onComplete(@NonNull Task<String> task) {
-                        if (!task.isSuccessful()) {
-                            Log.w(TAG, "Fetching FCM registration token failed", task.getException());
-                            return;
-                        }
+    private void setEventListeners() {
+        loginRedirectRegister.setOnClickListener(view -> {
+            String url = "https://intelligentcarmanagement.azurewebsites.net/driver/register";
 
-                        // Get new FCM registration token
-                        String token = task.getResult();
-                        Log.d(TAG, token);
-                    }
-                });
-
-
-        loginRedirectRegister.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: Set a link to the Become a Driver FORM
-            }
+            Intent i = new Intent(Intent.ACTION_VIEW);
+            i.setData(Uri.parse(url));
+            startActivity(i);
         });
 
-        loginButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mViewModel.login(emailEditText.getText().toString(), passwordEditText.getText().toString());
-            }
-        });
+        loginButton.setOnClickListener(view -> mViewModel.login(emailEditText.getText().toString(), passwordEditText.getText().toString()));
 
-        mViewModel.getLoginState().observe(this, new Observer<RequestState>() {
-            @Override
-            public void onChanged(RequestState state) {
-                Log.d(TAG, "Login state: " + state);
-                switch (state) {
-                    case START:
-                        loginButton.setEnabled(false);
-                        progressIndicator.setVisibility(View.VISIBLE);
-                        break;
-                    case SUCCESS:
-                        progressIndicator.setVisibility(View.GONE);
-                        Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
-                        startActivity(intent);
-                        finish();
-                        break;
-                    case ERROR:
-                        Log.d(TAG, "Login error state");
-                        progressIndicator.setVisibility(View.GONE);
-                        loginButton.setEnabled(true);
-                        break;
-                    default:
+        mViewModel.getLoginState().observe(this, state -> {
+            Log.d(TAG, "Login state: " + state);
+            switch (state) {
+                case START:
+                    loginButton.setEnabled(false);
+                    progressIndicator.setVisibility(View.VISIBLE);
+                    break;
+                case SUCCESS:
+                    progressIndicator.setVisibility(View.GONE);
+                    Intent intent = new Intent(LoginActivity.this, DashboardActivity.class);
+                    startActivity(intent);
+                    finish();
+                    break;
+                case ERROR:
+                    Log.d(TAG, "Login error state");
+                    progressIndicator.setVisibility(View.GONE);
                     loginButton.setEnabled(true);
                     break;
-                }
+                default:
+                    loginButton.setEnabled(true);
+                    break;
             }
         });
 
-        mViewModel.getLoginError().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(String s) {
-                Log.d(TAG, "Login error: " + s);
-                loginError.setVisibility(View.VISIBLE);
-                loginError.setText(s);
-            }
+        mViewModel.getLoginError().observe(this, s -> {
+            Log.d(TAG, "Login error: " + s);
+            loginError.setVisibility(View.VISIBLE);
+            loginError.setText(s);
         });
     }
 }

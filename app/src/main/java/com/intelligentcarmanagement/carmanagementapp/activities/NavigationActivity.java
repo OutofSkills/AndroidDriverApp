@@ -315,16 +315,7 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
             //use the previously created marker
             userLocationMarker.setPosition(currentLatLng);
             userLocationMarker.setRotation(location.getBearing());
-
-            CameraPosition cameraPosition = new CameraPosition.Builder()
-                    .target(currentLatLng)
-                    .tilt(60)
-                    .zoom(17)
-                    .bearing(location.getBearing())
-                    .build();
-
-            mMap.moveCamera(CameraUpdateFactory.newCameraPosition(cameraPosition));
-
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(currentLatLng));
             updateCameraBearing(mMap, location.getBearing());
         }
 
@@ -548,27 +539,13 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
 
     private void updateCameraBearing(GoogleMap googleMap, float bearing) {
         if ( googleMap == null) return;
-
-        LatLng mapCenter = mMap.getCameraPosition().target;
-        Projection projection = mMap.getProjection();
-        Point centerPoint = projection.toScreenLocation(mapCenter);
-
-        DisplayMetrics displayMetrics = new DisplayMetrics();
-        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-        int displayHeight = displayMetrics.heightPixels;
-
-        centerPoint.y = centerPoint.y - (int) (displayHeight / 6.0);  // move center down for approx 22%
-
-        LatLng newCenterPoint = projection.fromScreenLocation(centerPoint);
-
-//        CameraPosition camPos = CameraPosition
-//                .builder()
-//                .target(newCenterPoint)
-//                .bearing(bearing)
-//                .zoom(17)
-//                .build();
-
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(newCenterPoint, 17));
+        CameraPosition camPos = CameraPosition
+                .builder(
+                        googleMap.getCameraPosition() // current Camera
+                )
+                .bearing(bearing)
+                .build();
+        googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(camPos));
     }
 
     private void updateNavigationPanels(String targetName, String targetAddress, String clientName)

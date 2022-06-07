@@ -131,8 +131,8 @@ public class NavigationViewModel extends AndroidViewModel {
         int rideId = mOngoingRideLiveData.getValue().getId();
         String jwtToken = mSessionManager.getUserData().get(SessionManager.KEY_JWT_TOKEN);
 
-        // Compute accuracy
-        mRideAccuracy = computeAccuracy();
+        // Compute accuracy in percents
+        mRideAccuracy = computeAccuracy() * 100;
 
         Log.d(TAG, "evaluateRide: rideID: " + rideId + ", accuracy: " + mRideAccuracy);
 

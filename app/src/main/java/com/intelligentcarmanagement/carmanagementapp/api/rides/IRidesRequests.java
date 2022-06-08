@@ -17,7 +17,7 @@ public interface IRidesRequests {
     @GET("/api/Rides/ongoing")
     Call<Ride> getOngoingRide(@Header("authorization") String token, @Query("id") int userId);
 
-    @GET("/api/Rides")
+    @GET("/api/Rides/id")
     Call<Ride> getRideById(@Header("authorization") String token, @Query("id") int rideId);
 
     @POST("/api/Rides/confirm")

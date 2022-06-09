@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 
 import com.google.android.material.progressindicator.CircularProgressIndicator;
+import com.google.android.material.snackbar.Snackbar;
 import com.intelligentcarmanagement.carmanagementapp.R;
 import com.intelligentcarmanagement.carmanagementapp.adapters.HistoryRecyclerViewAdapter;
 import com.intelligentcarmanagement.carmanagementapp.databinding.ActivityHistoryBinding;
@@ -56,6 +57,9 @@ public class HistoryActivity extends DrawerBaseActivity {
         mHistoryViewModel.getProcessingState().observe(HistoryActivity.this, state -> {
             switch (state){
                 case ERROR:
+                    mProgressIndicator.setVisibility(View.GONE);
+                    Snackbar.make(refreshLayout, "Couldn't connect to the server.", Snackbar.LENGTH_LONG)
+                            .setAction(R.string.try_again, view -> mHistoryViewModel.getHistory()).show();
                     break;
                 case SUCCESS:
                     Log.d(TAG, "onChanged: done");

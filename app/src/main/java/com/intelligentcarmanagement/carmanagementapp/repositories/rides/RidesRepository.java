@@ -53,7 +53,16 @@ public class RidesRepository implements IRidesRepository{
         initRequest.enqueue(new Callback<Ride>() {
             @Override
             public void onResponse(Call<Ride> call, Response<Ride> response) {
-                getRide.onResponse(response.body());
+                if(response.isSuccessful())
+                    getRide.onResponse(response.body());
+                else {
+                    try {
+                        getRide.onFailure(new Throwable(response.errorBody().string()));
+                    } catch (IOException e) {
+                        Log.d(TAG, "onResponse: ");
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override
@@ -126,7 +135,16 @@ public class RidesRepository implements IRidesRepository{
             @Override
             public void onResponse(Call<Ride> call, Response<Ride> response) {
                 if(response.isSuccessful())
-                    getRide.onResponse(response.body());
+                    if(response.isSuccessful())
+                        getRide.onResponse(response.body());
+                    else {
+                        try {
+                            getRide.onFailure(new Throwable(response.errorBody().string()));
+                        } catch (IOException e) {
+                            Log.d(TAG, "onResponse: ");
+                            e.printStackTrace();
+                        }
+                    }
                 else {
                     try {
                         getRide.onFailure(new Throwable(response.errorBody().string()));

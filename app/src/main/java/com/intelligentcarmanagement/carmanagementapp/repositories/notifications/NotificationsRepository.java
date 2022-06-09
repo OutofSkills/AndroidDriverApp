@@ -10,6 +10,7 @@ import com.intelligentcarmanagement.carmanagementapp.api.notifications.responses
 import com.intelligentcarmanagement.carmanagementapp.api.notifications.responses.IUpdateToken;
 import com.intelligentcarmanagement.carmanagementapp.models.notifications.Notification;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import retrofit2.Call;
@@ -17,6 +18,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class NotificationsRepository implements INotificationsRepository {
+
+    private static final String TAG = "NotificationsRepository";
 
     @Override
     public void updateToken(String token, String id, String firebaseToken, IUpdateToken updateTokenResponse) {
@@ -28,13 +31,15 @@ public class NotificationsRepository implements INotificationsRepository {
             @Override
             public void onResponse(@NonNull Call<String> call, Response<String> response) {
                 Log.d("Repo", "Body: " + response.body());
-                if(response.isSuccessful()) {
-                    Log.d("Repo", "Body: " + response.body());
+                if(response.isSuccessful())
                     updateTokenResponse.onResponse(response.body());
-                }
-                else
-                {
-                    updateTokenResponse.onFailure(new Throwable(response.message()));
+                else {
+                    try {
+                        updateTokenResponse.onFailure(new Throwable(response.errorBody().string()));
+                    } catch (IOException e) {
+                        Log.d(TAG, "onResponse: ");
+                        e.printStackTrace();
+                    }
                 }
             }
 
@@ -54,8 +59,16 @@ public class NotificationsRepository implements INotificationsRepository {
         initRequest.enqueue(new Callback<ArrayList<Notification>>() {
             @Override
             public void onResponse(Call<ArrayList<Notification>> call, Response<ArrayList<Notification>> response) {
-                Log.d("Repo", "Body: " + response.body());
-                getNotifications.onResponse(response.body());
+                if(response.isSuccessful())
+                    getNotifications.onResponse(response.body());
+                else {
+                    try {
+                        getNotifications.onFailure(new Throwable(response.errorBody().string()));
+                    } catch (IOException e) {
+                        Log.d(TAG, "onResponse: ");
+                        e.printStackTrace();
+                    }
+                }
             }
 
             @Override

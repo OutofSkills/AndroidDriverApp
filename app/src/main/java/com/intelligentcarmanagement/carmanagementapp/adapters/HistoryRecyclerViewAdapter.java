@@ -48,10 +48,10 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
         holder.ridePickUpAddress.setText(mRides.get(position).getPickUpPlaceName());
         holder.rideDestinationAddress.setText(mRides.get(position).getDestinationPlaceName());
         holder.rideDistance.setText(String.format("%.2f", mRides.get(position).getDistance()) + "km");
-        holder.rideTime.setText(String.valueOf((int)mRides.get(position).getAverageTime()) + " min");
+        holder.rideTime.setText(new StringBuilder().append((int) mRides.get(position).getAverageTime()).append(" min").toString());
 
-        String price = String.valueOf(mRides.get(position).getPrice());
-        holder.rideTotalMoney.setText(String.valueOf("$" + price));
+        String price = String.format("%.2f", mRides.get(position).getPrice());
+        holder.rideTotalMoney.setText(new StringBuilder().append("$").append(price).toString());
         holder.clientUsername.setText(mRides.get(position).getClient().getEmail());
 
         String string64 = mRides.get(position).getClient().getAvatar();
@@ -59,11 +59,11 @@ public class HistoryRecyclerViewAdapter extends RecyclerView.Adapter<HistoryRecy
         Bitmap bmp = ImageConverter.convertBytesToBitmap(imageBytes);
         holder.clientAvatar.setImageBitmap(bmp);
 
-        String rating = String.valueOf(mRides.get(position).getClient().getRating());
-        holder.clientRating.setText(String.valueOf(rating));
+        String rating = String.format("%.1f", mRides.get(position).getClient().getRating());
+        holder.clientRating.setText(rating);
 
-        String accuracy = mRides.get(position).getReview() == null ? "0.0" : String.valueOf(mRides.get(position).getReview().getDrivingAccuracy());
-        holder.rideAccuracy.setText(accuracy + "%");
+        String accuracy = mRides.get(position).getReview() == null ? "0.00" : String.format("%.2f", mRides.get(position).getReview().getDrivingAccuracy());
+        holder.rideAccuracy.setText(new StringBuilder().append(accuracy).append("%").toString());
     }
 
     @Override

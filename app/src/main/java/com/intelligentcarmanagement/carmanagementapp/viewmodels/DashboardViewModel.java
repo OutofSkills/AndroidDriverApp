@@ -112,7 +112,7 @@ public class DashboardViewModel extends AndroidViewModel {
 
                 Date yesterday = getYesterdayDate();
                 for (Ride ride: historyRides) {
-                    if(ride.getPickUpTime().after(yesterday))
+                    if(ride.getPickUpTime().after(yesterday) && ride.getRideState().getName().matches("FINISHED"))
                     {
                         totalEarnings += ride.getPrice();
                         distance += ride.getDistance();

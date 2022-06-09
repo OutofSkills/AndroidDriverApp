@@ -160,7 +160,7 @@ public class NavigationViewModel extends AndroidViewModel {
             e.printStackTrace();
         }
 
-        if(results != null)
+        if(results != null && results.size() > 0)
         {
             float normalRate = 0;
             for (DrivingBehaviorEvent event:results) {

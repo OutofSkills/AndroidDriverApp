@@ -122,8 +122,8 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
         Intent intent = getIntent();
         rideId = intent.getIntExtra("rideId", 0);
 
-        // Fetch the given ride details
-        viewModel.fetchRide(rideId);
+//        // Fetch the given ride details
+//        viewModel.fetchRide(rideId);
 
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -170,15 +170,18 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
                     // Enable "End" button
                     startRideButton.setVisibility(View.GONE);
                     endRideButton.setVisibility(View.VISIBLE);
+                    startService(new Intent(NavigationActivity.this, DrivingMotionService.class));
                 }
                 else {
                     endRideButton.setEnabled(false);
                     updateNavigationPanels("-", "-", "-");
+                    stopService(new Intent(NavigationActivity.this, DrivingMotionService.class));
                 }
             }
             else
             {
                 updateNavigationPanels("-", "-", "-");
+                stopService(new Intent(NavigationActivity.this, DrivingMotionService.class));
 
                 // Handle the error
                 displayRetryBottomDialog();
@@ -418,6 +421,7 @@ public class NavigationActivity extends FragmentActivity implements OnMapReadyCa
         super.onStart();
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             startLocationUpdates();
+            viewModel.fetchRide(rideId);
         } else {
             // you need to request permissions...
         }

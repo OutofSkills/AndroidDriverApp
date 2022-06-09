@@ -54,14 +54,8 @@ public class BroadcastLocationService extends Service {
 
         mUsersRepository = new UsersRepository();
 
-        handler = new Handler();
-        runnable = () -> {
-            Log.d(TAG, "onCreate: Service is still running");
-            updateLocation();
-            handler.postDelayed(runnable, BROADCAST_RATE);
-        };
-
-        handler.postDelayed(runnable, 15000);
+        startLocationUpdates();
+        runBackgroundThread();
     }
 
     private void updateLocation() {
@@ -72,6 +66,7 @@ public class BroadcastLocationService extends Service {
                     @Override
                     public void onFailure(Throwable t) {
                         Log.d(TAG, "onFailure: update location " + t.getMessage());
+                        t.printStackTrace();
                     }
 
                     @Override
@@ -84,23 +79,41 @@ public class BroadcastLocationService extends Service {
     @Override
     public void onDestroy() {
         /* IF YOU WANT THIS SERVICE KILLED WITH THE APP THEN UNCOMMENT THE FOLLOWING LINE */
-        //handler.removeCallbacks(runnable);
+        handler.removeCallbacks(runnable);
         stopLocationUpdates();
-        Toast.makeText(this, "Service stopped", Toast.LENGTH_LONG).show();
+
+        Toast.makeText(this, "Service stopped.", Toast.LENGTH_LONG).show();
+        Log.d(TAG, "onDestroy: Services stopped.");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "Service started by user.", Toast.LENGTH_LONG).show();
-        startLocationUpdates();
+        //Toast.makeText(this, "Service started by user.", Toast.LENGTH_LONG).show();
+        Log.d(TAG, "onStartCommand: Service resumed.");
+
         return startId;
+    }
+
+    private void runBackgroundThread() {
+        handler = new Handler();
+
+        runnable = () -> {
+            try {
+                Log.d(TAG, "runBackgroundThread: Updating location.");
+                updateLocation();
+                handler.postDelayed(runnable, BROADCAST_RATE);
+            }
+            catch (Exception e) {
+                Log.d(TAG, "runBackgroundThread: Service exception.");
+            }
+        };
+        handler.postDelayed(runnable, BROADCAST_RATE);
     }
 
     LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
-            Log.d(TAG, "onLocationResult: " + locationResult.getLastLocation());
             currentLatLng = new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude());
         }
     };

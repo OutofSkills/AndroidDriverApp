@@ -77,52 +77,59 @@ public class DrivingMotionService extends Service {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
 
         locationRequest = LocationRequest.create();
-        //locationRequest.setSmallestDisplacement(10);
+        locationRequest.setSmallestDisplacement(10);
         locationRequest.setInterval(1000);
         locationRequest.setFastestInterval(500);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
+        startLocationUpdates();
+        mDataCollector.register();
+
+        runBackgroundThread();
+    }
+
+    private void runBackgroundThread() {
         handler = new Handler();
         runnable = () -> {
-            Log.d(TAG, "onCreate: Service is still running");
-            // TODO: Handle location update
-            if(currentLatLng != null)
-            {
-                if(currentLatLng != lastLatLng) {
+            try {
+                Log.d(TAG, "runBackgroundThread: Service is still running");
 
-                    // Process and save the motion data
-                    List<Motion> collectedData = mDataCollector.getCollectedDataList();
-                    mDataQueue.addAll(collectedData);
+                if (currentLatLng != null) {
+                    if (currentLatLng != lastLatLng) {
 
-                    int temp = mDataQueue.size() / 20;
-                    if(temp > 0)
-                    {
-                        ArrayList<Motion> tempList = new ArrayList<>();
-                        for(int i = 0; i < temp * 20; i++)
-                        {
-                            tempList.add(mDataQueue.poll());
+                        // Process and save the motion data
+                        List<Motion> collectedData = mDataCollector.getCollectedDataList();
+                        mDataQueue.addAll(collectedData);
+
+                        int temp = mDataQueue.size() / 20;
+                        if (temp > 0) {
+                            ArrayList<Motion> tempList = new ArrayList<>();
+                            for (int i = 0; i < temp * 20; i++) {
+                                tempList.add(mDataQueue.poll());
+                            }
+
+                            // Get the result for the collected data
+                            DrivingBehaviorEvent event = mDrivingBehaviorProcessor.doInference(tempList);
+                            // Save the result in database
+                            mDbHelper.InsertResult(event);
                         }
 
-                        // Get the result for the collected data
-                        DrivingBehaviorEvent event = mDrivingBehaviorProcessor.doInference(tempList);
-                        // Save the result in database
-                        mDbHelper.InsertResult(event);
+
+                        Log.d(TAG, "onCreate: Data collected: " + collectedData.size());
+                        mDataCollector.clearCollectedDataList();
+
+                        // Update last location
+                        lastLatLng = currentLatLng;
+                    } else {
+                        // If the device is not moving, thank we don't need the collected data
+                        mDataCollector.clearCollectedDataList();
                     }
-
-
-                    Log.d(TAG, "onCreate: Data collected: " + collectedData.size());
-                    mDataCollector.clearCollectedDataList();
-
-                    // Update last location
-                    lastLatLng = currentLatLng;
                 }
-                else
-                {
-                    // If the device is not moving, thank we don't need the collected data
-                    mDataCollector.clearCollectedDataList();
-                }
+
+                handler.postDelayed(runnable, PROCESS_RATE);
+            }catch (Exception e){
+                Log.d(TAG, "runBackgroundThread: " + e.getMessage());
             }
-            handler.postDelayed(runnable, PROCESS_RATE);
         };
         handler.postDelayed(runnable, PROCESS_RATE);
     }
@@ -130,26 +137,25 @@ public class DrivingMotionService extends Service {
     @Override
     public void onDestroy() {
         /* IF YOU WANT THIS SERVICE KILLED WITH THE APP THEN UNCOMMENT THE FOLLOWING LINE */
-        //handler.removeCallbacks(runnable);
+        handler.removeCallbacks(runnable);
         stopLocationUpdates();
         mDataCollector.unregister();
         Toast.makeText(this, "Service stopped", Toast.LENGTH_LONG).show();
+        Log.d(TAG, "onDestroy: Service stooped.");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Toast.makeText(this, "Service started by user.", Toast.LENGTH_LONG).show();
-        startLocationUpdates();
-        mDataCollector.register();
+        //Toast.makeText(this, "Service started by user.", Toast.LENGTH_LONG).show();
+        Log.d(TAG, "onStartCommand: Service resumed.");
 
-        return startId;
+        return START_STICKY;
     }
 
     LocationCallback locationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
-            Log.d(TAG, "onLocationResult: " + locationResult.getLastLocation());
             currentLatLng = new LatLng(locationResult.getLastLocation().getLatitude(), locationResult.getLastLocation().getLongitude());
         }
     };

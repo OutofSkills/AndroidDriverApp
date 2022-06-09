@@ -505,7 +505,13 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
         mViewModel.isAvailable().observe(HomeActivity.this, aBoolean -> {
             Log.d(TAG, "onChanged: Is available: " + aBoolean);
             driverSwitchState.setChecked(aBoolean);
-            driverSwitchStateInfo.setText(aBoolean ? "Available" : "Not available");
+            if(aBoolean) {
+                driverSwitchStateInfo.setText("Available");
+                startService(new Intent(HomeActivity.this, BroadcastLocationService.class));
+            }else {
+                driverSwitchStateInfo.setText("Not available");
+                stopService(new Intent(HomeActivity.this, BroadcastLocationService.class));
+            }
         });
 
         // Check the state of the make available request
@@ -533,12 +539,10 @@ public class HomeActivity extends FragmentActivity implements OnMapReadyCallback
             if(b == true)
             {
                 mViewModel.makeDriverAvailable(true);
-                startService(new Intent(HomeActivity.this, BroadcastLocationService.class));
             }
             else
             {
                 mViewModel.makeDriverAvailable(false);
-                stopService(new Intent(HomeActivity.this, BroadcastLocationService.class));
             }
         });
 
